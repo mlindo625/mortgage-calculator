@@ -179,14 +179,14 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
         <select id="loanType"><option value="conv">Conventional</option><option value="fha" selected>FHA</option><option value="va">VA</option><option value="usda">USDA</option></select></div>
     </div>
     <div class="row mt">
-      <div class="f"><label for="price">Purchase price</label><div class="in has-pre"><span class="pre">$</span><input id="price" type="number" inputmode="decimal" value="400000" step="1000"></div></div>
-      <div class="f"><label for="dpAmt">Down payment</label><div class="in has-pre"><span class="pre">$</span><input id="dpAmt" type="number" inputmode="decimal" value="14000" step="500"></div></div>
-      <div class="f"><label for="dpPct">Down payment %</label><div class="in has-suf"><input id="dpPct" type="number" inputmode="decimal" value="3.5" step="0.5"><span class="suf">%</span></div></div>
+      <div class="f"><label for="price">Purchase price</label><div class="in has-pre"><span class="pre">$</span><input id="price" placeholder="Required" type="number" inputmode="decimal" value="" step="1000"></div></div>
+      <div class="f"><label for="dpAmt">Down payment</label><div class="in has-pre"><span class="pre">$</span><input id="dpAmt" placeholder="Required" type="number" inputmode="decimal" value="" step="500"></div></div>
+      <div class="f"><label for="dpPct">Down payment %</label><div class="in has-suf"><input id="dpPct" placeholder="or %" type="number" inputmode="decimal" value="" step="0.5"><span class="suf">%</span></div></div>
     </div>
     <div class="row mt">
       <div class="f"><label for="term">Amortization</label>
         <select id="term"><option value="40">40 years</option><option value="30" selected>30 years</option><option value="25">25 years</option><option value="20">20 years</option><option value="15">15 years</option><option value="10">10 years</option><option value="custom">Custom</option></select></div>
-      <div class="f" id="termCustomF" hidden><label for="termCustom">Custom term (years)</label><input id="termCustom" type="number" value="22" min="1" max="50"></div>
+      <div class="f" id="termCustomF" hidden><label for="termCustom">Custom term (years)</label><input id="termCustom" type="number" value="" min="1" max="50"></div>
       <div class="f"><label for="firstPay">First payment</label><input id="firstPay" type="month" value="2026-12"></div>
     </div>
   </section>
@@ -199,8 +199,8 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
       <button type="button" data-rt="var" aria-pressed="false">Variable schedule</button>
     </div>
     <div class="row mt">
-      <div class="f"><label for="rate" id="rateLbl">Note rate</label><div class="in has-suf"><input id="rate" type="number" inputmode="decimal" value="6.25" step="0.125"><span class="suf">%</span></div></div>
-      <div class="f"><label for="extra">Extra principal / month</label><div class="in has-pre"><span class="pre">$</span><input id="extra" type="number" inputmode="decimal" value="0" step="25"></div></div>
+      <div class="f"><label for="rate" id="rateLbl">Note rate</label><div class="in has-suf"><input id="rate" placeholder="Required" type="number" inputmode="decimal" value="" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="extra">Extra principal / month</label><div class="in has-pre"><span class="pre">$</span><input id="extra" placeholder="Optional" type="number" inputmode="decimal" value="" step="25"></div></div>
     </div>
 
     <div class="sub-box" id="armBox" hidden>
@@ -210,13 +210,13 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
             <option value="36|6">3/6 ARM</option><option value="60|6" selected>5/6 ARM</option><option value="84|6">7/6 ARM</option><option value="120|6">10/6 ARM</option>
             <option value="36|12">3/1 ARM</option><option value="60|12">5/1 ARM</option><option value="84|12">7/1 ARM</option><option value="120|12">10/1 ARM</option>
           </select></div>
-        <div class="f"><label for="armIndex">Index (e.g. 30-day avg SOFR)</label><div class="in has-suf"><input id="armIndex" type="number" value="4.00" step="0.05"><span class="suf">%</span></div></div>
-        <div class="f"><label for="armMargin">Margin</label><div class="in has-suf"><input id="armMargin" type="number" value="2.75" step="0.125"><span class="suf">%</span></div></div>
+        <div class="f"><label for="armIndex">Index (e.g. 30-day avg SOFR)</label><div class="in has-suf"><input id="armIndex" type="number" value="" step="0.05"><span class="suf">%</span></div></div>
+        <div class="f"><label for="armMargin">Margin</label><div class="in has-suf"><input id="armMargin" type="number" value="" step="0.125"><span class="suf">%</span></div></div>
       </div>
       <div class="row">
-        <div class="f"><label for="capInit">Initial cap</label><div class="in has-suf"><input id="capInit" type="number" value="2" step="0.5"><span class="suf">%</span></div></div>
-        <div class="f"><label for="capPer">Periodic cap</label><div class="in has-suf"><input id="capPer" type="number" value="1" step="0.5"><span class="suf">%</span></div></div>
-        <div class="f"><label for="capLife">Lifetime cap</label><div class="in has-suf"><input id="capLife" type="number" value="5" step="0.5"><span class="suf">%</span></div></div>
+        <div class="f"><label for="capInit">Initial cap</label><div class="in has-suf"><input id="capInit" type="number" value="" step="0.5"><span class="suf">%</span></div></div>
+        <div class="f"><label for="capPer">Periodic cap</label><div class="in has-suf"><input id="capPer" type="number" value="" step="0.5"><span class="suf">%</span></div></div>
+        <div class="f"><label for="capLife">Lifetime cap</label><div class="in has-suf"><input id="capLife" type="number" value="" step="0.5"><span class="suf">%</span></div></div>
       </div>
       <div class="row">
         <div class="f"><label for="armScen">Rate scenario after the fixed period</label>
@@ -226,7 +226,7 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
             <option value="worst">Worst case (every cap is hit)</option>
             <option value="best">Best case (falls to the floor)</option>
           </select></div>
-        <div class="f" id="driftF" hidden><label for="armDrift">Index change per adjustment</label><div class="in has-suf"><input id="armDrift" type="number" value="0.25" step="0.125"><span class="suf">%</span></div></div>
+        <div class="f" id="driftF" hidden><label for="armDrift">Index change per adjustment</label><div class="in has-suf"><input id="armDrift" type="number" value="" step="0.125"><span class="suf">%</span></div></div>
       </div>
       <div class="hint" id="armHint"></div>
     </div>
@@ -241,13 +241,13 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
   <section class="panel">
     <h2>Taxes, insurance &amp; fees</h2>
     <div class="row">
-      <div class="f"><label for="taxAmt">Property taxes / year</label><div class="in has-pre"><span class="pre">$</span><input id="taxAmt" type="number" value="7000" step="100"></div></div>
-      <div class="f"><label for="taxPct">Tax rate (% of price)</label><div class="in has-suf"><input id="taxPct" type="number" value="1.75" step="0.05"><span class="suf">%</span></div></div>
+      <div class="f"><label for="taxAmt">Property taxes / year</label><div class="in has-pre"><span class="pre">$</span><input id="taxAmt" placeholder="Optional" type="number" value="" step="100"></div></div>
+      <div class="f"><label for="taxPct">Tax rate (% of price)</label><div class="in has-suf"><input id="taxPct" placeholder="Optional" type="number" value="" step="0.05"><span class="suf">%</span></div></div>
     </div>
     <div class="row mt">
-      <div class="f"><label for="ins">Homeowners insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="ins" type="number" value="3600" step="100"></div></div>
-      <div class="f"><label for="flood">Flood insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="flood" type="number" value="0" step="50"></div></div>
-      <div class="f"><label for="hoa">HOA / month</label><div class="in has-pre"><span class="pre">$</span><input id="hoa" type="number" value="75" step="5"></div></div>
+      <div class="f"><label for="ins">Homeowners insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="ins" placeholder="Optional" type="number" value="" step="100"></div></div>
+      <div class="f"><label for="flood">Flood insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="flood" placeholder="Optional" type="number" value="" step="50"></div></div>
+      <div class="f"><label for="hoa">HOA / month</label><div class="in has-pre"><span class="pre">$</span><input id="hoa" placeholder="Optional" type="number" value="" step="5"></div></div>
     </div>
     <div style="margin-top:14px" class="lbl">Other fees</div>
     <div class="list" id="feeList" style="margin-top:8px"></div>
@@ -275,20 +275,20 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
     <h2>Buydowns &amp; points</h2>
     <div class="lbl">Temporary buydown</div>
     <div class="seg" role="group" aria-label="Buydown" style="margin-top:6px">
-      <button type="button" data-bd="" aria-pressed="false">None</button>
+      <button type="button" data-bd="" aria-pressed="true">None</button>
       <button type="button" data-bd="3,2,1" aria-pressed="false">3-2-1</button>
-      <button type="button" data-bd="2,1" aria-pressed="true">2-1</button>
+      <button type="button" data-bd="2,1" aria-pressed="false">2-1</button>
       <button type="button" data-bd="1,0" aria-pressed="false">1-0</button>
       <button type="button" data-bd="1,1" aria-pressed="false">1-1</button>
       <button type="button" data-bd="custom" aria-pressed="false">Custom</button>
     </div>
     <div class="row mt">
-      <div class="f" id="bdCustomF" hidden><label for="bdCustom">Rate reduction by year (comma separated)</label><input id="bdCustom" type="text" value="1.5, 0.5"></div>
+      <div class="f" id="bdCustomF" hidden><label for="bdCustom">Rate reduction by year (comma separated)</label><input id="bdCustom" type="text" value="" placeholder="e.g. 1.5, 0.5"></div>
       <div class="f"><label for="bdPayer">Buydown paid by</label><select id="bdPayer"><option>Seller</option><option>Builder</option><option>Lender</option><option>Buyer</option><option>Agent</option></select></div>
     </div>
     <div style="margin-top:14px" class="lbl">Permanent buydown (discount points)</div>
     <div class="row" style="margin-top:6px">
-      <div class="f"><label for="points">Points paid</label><div class="in has-suf"><input id="points" type="number" value="0" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="points">Points paid</label><div class="in has-suf"><input id="points" placeholder="Optional" type="number" value="" step="0.125"><span class="suf">%</span></div></div>
       <div class="f"><label for="parRate">Rate without points (for break-even)</label><div class="in has-suf"><input id="parRate" type="number" value="" placeholder="optional" step="0.125"><span class="suf">%</span></div></div>
     </div>
   </section>
@@ -296,12 +296,12 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
   <section class="panel">
     <h2>APR <small>Prepaid finance charges</small></h2>
     <div class="row">
-      <div class="f"><label for="origPct">Origination fee</label><div class="in has-suf"><input id="origPct" type="number" value="0" step="0.125"><span class="suf">%</span></div></div>
-      <div class="f"><label for="lenderFees">Lender fees (underwriting, processing)</label><div class="in has-pre"><span class="pre">$</span><input id="lenderFees" type="number" value="1295" step="25"></div></div>
+      <div class="f"><label for="origPct">Origination fee</label><div class="in has-suf"><input id="origPct" placeholder="Optional" type="number" value="" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="lenderFees">Lender fees (underwriting, processing)</label><div class="in has-pre"><span class="pre">$</span><input id="lenderFees" placeholder="Optional" type="number" value="" step="25"></div></div>
     </div>
     <div class="row mt">
-      <div class="f"><label for="otherPfc">Other finance charges (settlement fee, tax service, flood cert)</label><div class="in has-pre"><span class="pre">$</span><input id="otherPfc" type="number" value="650" step="25"></div></div>
-      <div class="f"><label for="piDays">Prepaid interest (days)</label><input id="piDays" type="number" value="15" min="0" max="31"></div>
+      <div class="f"><label for="otherPfc">Other finance charges (settlement fee, tax service, flood cert)</label><div class="in has-pre"><span class="pre">$</span><input id="otherPfc" placeholder="Optional" type="number" value="" step="25"></div></div>
+      <div class="f"><label for="piDays">Prepaid interest (days)</label><input id="piDays" placeholder="Optional" type="number" value="" min="0" max="31"></div>
     </div>
     <label class="check mt"><input type="checkbox" id="aprBd"> Temporary buydown is written into the note (include it in the APR)</label>
     <div class="note mt" id="aprNote"></div>
@@ -334,7 +334,7 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
     <div class="actions">
       <button type="button" class="btn primary" id="pdfBtn">Download PDF</button>
       <button type="button" class="btn" id="copyBtn">Copy summary</button>
-      <button type="button" class="btn" id="resetBtn">Reset to examples</button>
+      <button type="button" class="btn" id="resetBtn">Clear all</button>
     </div>
     <div class="hint" id="pdfHint">The PDF downloads to your device. Attach the file to your email.</div>
   </div>
@@ -402,7 +402,10 @@ function pmt(rate, n, P){ if(n<=0||P<=0) return 0; const r = rate/1200; if(r===0
 /* ---------- Scenario state ---------- */
 const FIELDS = ['scName','price','dpAmt','dpPct','loanType','term','termCustom','firstPay','rate','extra','armProd','armIndex','armMargin','capInit','capPer','capLife','armScen','armDrift','taxAmt','taxPct','ins','flood','hoa','score','vaUse','miUp','miAnn','bdCustom','bdPayer','points','parRate','origPct','lenderFees','otherPfc','piDays'];
 const CHECKS = ['miAuto','miFin','aprBd'];
-let ui = {rateType:'fixed', buydown:'2,1', fees:[{name:'CDD fee', amt:0, freq:'year'}], varRows:[{year:3, rate:6.75},{year:6, rate:7.25}]};
+let ui = {rateType:'fixed', buydown:'', fees:[], varRows:[]};
+// A scenario shows results only once the essentials are entered, so no example figures can be mistaken for current rates.
+const isReady = S => nv(S,'price')>0 && String(S.dpAmt).trim()!=='' && String(S.rate).trim()!=='';
+const NEED_MSG = 'Enter the purchase price, down payment and interest rate to see an estimate.';
 let scenarios = [], active = 0, schedView = 'year';
 
 function readState(){
@@ -657,11 +660,16 @@ function render(){
   scenarios[active] = readState();
   recalcAll();
   const c = results[active], r1 = c.r1, S = c.S;
-  if(S.miAuto){ $('miUp').value = c.upPct; $('miAnn').value = c.annPct; }
 
   renderTabs();
   $('editing').textContent = 'Editing scenario ' + (active+1);
   $('heroLbl').textContent = 'Scenario ' + (active+1) + ', first payment';
+  $('miUpLbl').textContent = UP_NAME[c.type] + (c.type==='va'?'':' (one time)');
+  $('miAnnLbl').textContent = c.type==='va' ? 'Annual MI (none on VA)' : MI_NAME[c.type] + ' (annual)';
+  $('miTag').textContent = {conv:'Conventional PMI', fha:'FHA MIP', va:'VA funding fee', usda:'USDA guarantee fee'}[c.type];
+  $('pdfScope').disabled = scenarios.length<2; if(scenarios.length<2) $('pdfScope').value = 'one';
+  if(!isReady(S)){ renderEmpty(); renderCompare(); return; }
+  if(S.miAuto){ $('miUp').value = c.upPct; $('miAnn').value = c.annPct; }
   $('heroPay').innerHTML = money(r1.total) + ' <small>/ month</small>';
   $('heroApr').innerHTML = `<span>Rate <b>${pctf(c.startRate)}</b></span><span>APR <b>${pctf(c.apr.apr)}</b></span>`;
   const it = c.apr.items;
@@ -699,11 +707,24 @@ function render(){
 
   renderCompare(); renderBuydown(c); renderRates(c); renderChart(c); renderSchedule(c);
 }
+function renderEmpty(){
+  const msg = `<tbody><tr><td style="white-space:normal;color:var(--muted)">${NEED_MSG}</td></tr></tbody>`;
+  $('heroPay').innerHTML = '$&ndash; <small>/ month</small>';
+  $('heroApr').innerHTML = ''; $('heroSub').textContent = NEED_MSG;
+  $('stackbar').innerHTML = ''; $('steps').innerHTML = ''; $('brk').innerHTML = '';
+  $('facts').innerHTML = `<div class="hint" style="grid-column:1/-1">${NEED_MSG}</div>`;
+  if($('miAuto').checked){ $('miUp').value = ''; $('miAnn').value = ''; }
+  $('miNote').textContent = 'Mortgage insurance is calculated automatically once the loan details are entered.';
+  $('aprNote').textContent = 'APR is calculated once the loan details are entered.';
+  $('armHint').textContent = ''; $('bdTag').textContent = ''; $('chartTag').textContent = '';
+  $('bdTable').innerHTML = msg; $('rateTable').innerHTML = msg; $('amTable').innerHTML = msg;
+  $('chart').innerHTML = `<div class="hint">${NEED_MSG}</div>`;
+}
 
 function renderTabs(){
   $('scenBar').innerHTML = scenarios.map((S,i)=>{ const c = results[i];
     return `<button type="button" class="tab" role="tab" aria-selected="${i===active}" data-tab="${i}">
-      <span class="t1">Scenario ${i+1}</span><span class="t2">${esc(autoLabel(S))}</span><span class="t3">${money(c.r1.total)}/mo</span></button>`; }).join('')
+      <span class="t1">Scenario ${i+1}</span><span class="t2">${esc(autoLabel(S))}</span><span class="t3">${isReady(S) ? money(c.r1.total)+'/mo' : 'Not filled in'}</span></button>`; }).join('')
     + `<button type="button" class="tab add" id="addScen" ${scenarios.length>=3?'disabled':''}>${scenarios.length>=3?'Up to 3 scenarios':'+ Add scenario (copies current)'}</button>`
     + (scenarios.length>1 ? `<button type="button" class="tab add" id="rmScen" style="color:var(--muted)">Remove scenario ${active+1}</button>` : '');
 }
@@ -716,7 +737,7 @@ $('scenBar').addEventListener('click', e=>{
 
 function cmpData(){
   const sec = t => ({sec:t});
-  const row = (k, f, best) => ({k, vals: results.map(f), best});
+  const row = (k, f, best) => ({k, vals: results.map((c,i)=>isReady(scenarios[i]) ? f(c) : '–'), best});
   return [
     sec('Loan'),
     row('Loan type', c=>TYPE_NAME[c.type]),
@@ -746,11 +767,12 @@ function cmpData(){
   ];
 }
 function renderCompare(){
+  if(!scenarios.some(isReady)){ $('cmpTable').innerHTML = `<tbody><tr><td style="white-space:normal;color:var(--muted)">${NEED_MSG}</td></tr></tbody>`; return; }
   const data = cmpData(); const multi = results.length>1;
   let h = `<thead><tr><th></th>${scenarios.map((S,i)=>`<th class="${i===active?'active':''}">Scenario ${i+1}<br><span style="font-weight:500;color:var(--muted)">${esc(autoLabel(S))}</span></th>`).join('')}</tr></thead><tbody>`;
   for(const r of data){
     if(r.sec){ h += `<tr class="sec"><td colspan="${results.length+1}">${r.sec}</td></tr>`; continue; }
-    let bestI = -1; if(multi && r.best){ const v = results.map(r.best); const mn = Math.min(...v); if(v.filter(x=>Math.abs(x-mn)<0.5).length < v.length) bestI = v.findIndex(x=>Math.abs(x-mn)<0.5); }
+    let bestI = -1; if(multi && r.best && scenarios.every(isReady)){ const v = results.map(r.best); const mn = Math.min(...v); if(v.filter(x=>Math.abs(x-mn)<0.5).length < v.length) bestI = v.findIndex(x=>Math.abs(x-mn)<0.5); }
     h += `<tr class="${r.key?'key':''}"><td>${esc(r.k)}</td>${r.vals.map((v,i)=>`<td class="${i===bestI?'best':''}" style="white-space:normal">${esc(v)}</td>`).join('')}</tr>`;
   }
   if(!multi) h += `<tr><td colspan="2" style="white-space:normal">Add a scenario at the top of the page to compare loan types side by side.</td></tr>`;
@@ -821,7 +843,7 @@ function renderVar(){
 $('feeList').addEventListener('input', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.fees[i][t.dataset.k] = t.dataset.k==='amt' ? +t.value : t.value; render(); });
 $('feeList').addEventListener('change', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.fees[i][t.dataset.k] = t.dataset.k==='amt' ? +t.value : t.value; render(); });
 $('feeList').addEventListener('click', e=>{ const i = e.target.dataset.rm; if(i!==undefined){ ui.fees.splice(+i,1); renderFees(); render(); } });
-$('addFee').onclick = ()=>{ ui.fees.push({name:'Other fee', amt:0, freq:'month'}); renderFees(); render(); };
+$('addFee').onclick = ()=>{ ui.fees.push({name:'Other fee', amt:'', freq:'month'}); renderFees(); render(); };
 $('varList').addEventListener('input', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.varRows[i][t.dataset.k] = +t.value; render(); });
 $('varList').addEventListener('click', e=>{ const i = e.target.dataset.rm; if(i!==undefined){ ui.varRows.splice(+i,1); renderVar(); render(); } });
 $('addVar').onclick = ()=>{ const lastY = ui.varRows.length ? ui.varRows[ui.varRows.length-1].year : 1; ui.varRows.push({year:lastY+2, rate:parseFloat($('rate').value)||0}); renderVar(); render(); };
@@ -829,22 +851,25 @@ $('addVar').onclick = ()=>{ const lastY = ui.varRows.length ? ui.varRows[ui.varR
 /* ---------- Linked inputs ---------- */
 const val = id => parseFloat($(id).value) || 0;
 const fix = (v,d) => +(+v).toFixed(d);
-$('price').addEventListener('input', ()=>{ const p=val('price'); $('dpAmt').value = Math.round(p*val('dpPct')/100); $('taxAmt').value = Math.round(p*val('taxPct')/100); });
-$('dpAmt').addEventListener('input', ()=>{ const p=val('price'); $('dpPct').value = p? fix(val('dpAmt')/p*100,3) : 0; });
-$('dpPct').addEventListener('input', ()=>{ $('dpAmt').value = Math.round(val('price')*val('dpPct')/100); });
-$('taxAmt').addEventListener('input', ()=>{ const p=val('price'); $('taxPct').value = p? fix(val('taxAmt')/p*100,3) : 0; });
-$('taxPct').addEventListener('input', ()=>{ $('taxAmt').value = Math.round(val('price')*val('taxPct')/100); });
+// Linked fields only fill each other when the source has a value, so blank fields stay blank.
+const has = id => $(id).value.trim()!=='';
+$('price').addEventListener('input', ()=>{ const p=val('price'); if(has('dpPct')) $('dpAmt').value = Math.round(p*val('dpPct')/100); if(has('taxPct')) $('taxAmt').value = Math.round(p*val('taxPct')/100); });
+$('dpAmt').addEventListener('input', ()=>{ const p=val('price'); $('dpPct').value = has('dpAmt') && p ? fix(val('dpAmt')/p*100,3) : ''; });
+$('dpPct').addEventListener('input', ()=>{ $('dpAmt').value = has('dpPct') && has('price') ? Math.round(val('price')*val('dpPct')/100) : ''; });
+$('taxAmt').addEventListener('input', ()=>{ const p=val('price'); $('taxPct').value = has('taxAmt') && p ? fix(val('taxAmt')/p*100,3) : ''; });
+$('taxPct').addEventListener('input', ()=>{ $('taxAmt').value = has('taxPct') && has('price') ? Math.round(val('price')*val('taxPct')/100) : ''; });
 $('loanType').addEventListener('change', ()=>{ const t=$('loanType').value, d=val('dpPct'); $('miFin').checked = t!=='conv';
+  if(!has('dpPct') || !has('price')) return;
   const setDp = p => { $('dpPct').value = p; $('dpAmt').value = Math.round(val('price')*p/100); };
   if((t==='va'||t==='usda') && d===3.5) setDp(0);
   if(t==='fha' && d<3.5) setDp(3.5);
   if(t==='conv' && d<3) setDp(5); });
 
 document.querySelectorAll('[data-rt]').forEach(b=>b.addEventListener('click', ()=>{
-  ui.rateType = b.dataset.rt; if(ui.rateType==='arm' && val('rate')===6.25) $('rate').value = 5.875; syncUI(); render(); }));
+  ui.rateType = b.dataset.rt; syncUI(); render(); }));
 document.querySelectorAll('[data-bd]').forEach(b=>b.addEventListener('click', ()=>{ ui.buydown = b.dataset.bd; syncUI(); render(); }));
 document.querySelectorAll('[data-sv]').forEach(b=>b.addEventListener('click', ()=>{
-  schedView = b.dataset.sv; document.querySelectorAll('[data-sv]').forEach(x=>x.setAttribute('aria-pressed', x===b)); renderSchedule(results[active]); }));
+  schedView = b.dataset.sv; document.querySelectorAll('[data-sv]').forEach(x=>x.setAttribute('aria-pressed', x===b)); if(isReady(scenarios[active])) renderSchedule(results[active]); }));
 const onField = e=>{ if(e.target.closest('#feeList,#varList')) return; syncUI(); render(); };
 document.querySelector('.inputs').addEventListener('input', onField);
 document.querySelector('.inputs').addEventListener('change', onField);
@@ -866,7 +891,10 @@ function summaryText(c, i){
   L.push(`Down payment, points and cash MI: ${money(c.cash)}`);
   return L.join('\n');
 }
+function needsInput(){ const i = scenarios.findIndex(S=>!isReady(S)); if(i<0) return false;
+  toast(scenarios.length>1 ? `Fill in scenario ${i+1} first (price, down payment and rate).` : 'Enter the purchase price, down payment and rate first.'); return true; }
 $('copyBtn').onclick = async ()=>{
+  scenarios[active] = readState(); recalcAll(); if(needsInput()) return;
   const text = results.map(summaryText).join('\n\n') + `\n\nEstimate only, not a Loan Estimate. ${LO.name}, NMLS #${LO.nmls}, Responsive Mortgage, a division of PRMG, NMLS #${LO.coNmls}. ${LO.phone}`;
   try { await navigator.clipboard.writeText(text); toast('Summary copied'); }
   catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); toast('Summary copied');}catch{toast('Copy blocked. Select the text manually.');} ta.remove(); }
@@ -999,7 +1027,7 @@ function buildPDF(){
   return doc;
 }
 $('pdfBtn').onclick = async ()=>{
-  scenarios[active] = readState(); recalcAll();
+  scenarios[active] = readState(); recalcAll(); if(needsInput()) return;
   if(!window.jspdf || !window.jspdf.jsPDF || !window.jspdf.jsPDF.API.autoTable){ toast('The PDF tools did not load. Reload the page and try again.'); return; }
   const btn = $('pdfBtn'); btn.disabled = true; btn.textContent = 'Building PDF...';
   try{
@@ -1018,18 +1046,15 @@ $('pdfBtn').onclick = async ()=>{
 
 /* ---------- Start ---------- */
 let EXAMPLES;
-function loadExamples(){
-  const A = readState();
-  A.scName=''; A.loanType='fha'; A.dpPct='3.5'; A.dpAmt='14000'; A.rate='6.25'; A.buydown='2,1'; A.miFin=true; A.miAuto=true; A.rateType='fixed';
-  const B = clone(A); Object.assign(B, {loanType:'conv', dpPct:'5', dpAmt:'20000', rate:'6.625', score:'1', miFin:false, buydown:''});
-  const C = clone(A); Object.assign(C, {loanType:'va', dpPct:'0', dpAmt:'0', rate:'6', vaUse:'first', miFin:true, buydown:''});
-  return [A,B,C];
-}
+// Start with one blank scenario; first payment defaults to next month.
+const nextMonth = (()=>{ const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()+1); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); })();
+$('firstPay').value = nextMonth;
+function loadExamples(){ return [readState()]; }
 if(RM_LOGO) $('brandMark').innerHTML = `<img src="${RM_LOGO.data}" alt="Responsive Mortgage">`;
 renderFees(); renderVar(); syncUI();
 EXAMPLES = loadExamples();
 scenarios = clone(EXAMPLES); active = 0; applyState(scenarios[0]); render();
-$('resetBtn').onclick = ()=>{ scenarios = clone(EXAMPLES); active = 0; applyState(scenarios[0]); render(); toast('Reset to the three example scenarios'); };
+$('resetBtn').onclick = ()=>{ scenarios = clone(EXAMPLES); active = 0; applyState(scenarios[0]); render(); toast('All fields cleared'); };
 </script>
 
 </body></html>
