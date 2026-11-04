@@ -1,0 +1,1034 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Manny's Mortgage Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+/* Layout: scenario tabs across the top; inputs left, sticky results right; comparison and detail tables full width below. */
+:root{
+  --bg:#f1f3f6; --surface:#ffffff; --surface-2:#f6f7f9; --ink:#14202e; --muted:#5b6676; --line:#d9dee6;
+  --accent:#163a63; --accent-ink:#ffffff; --accent-soft:#e3eaf3;
+  --brass:#c4621c; --brass-soft:#fbeadd; --orange:#e8792b;
+  --c-pi:#163a63; --c-esc:#6f8fb3; --c-mi:#e8792b; --c-hoa:#9aa4b1;
+  --good:#1d7a45; --good-soft:#e1f2e8;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d141d; --surface:#141e2a; --surface-2:#1a2634; --ink:#e6ebf1; --muted:#97a3b3; --line:#283647;
+  --accent:#8fb6e6; --accent-ink:#0b1626; --accent-soft:#1a2c44;
+  --brass:#f0a066; --brass-soft:#3b2616; --orange:#f08a45;
+  --c-pi:#8fb6e6; --c-esc:#5d7ea6; --c-mi:#f08a45; --c-hoa:#6c7888;
+  --good:#5cc98a; --good-soft:#15301f; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d141d; --surface:#141e2a; --surface-2:#1a2634; --ink:#e6ebf1; --muted:#97a3b3; --line:#283647;
+  --accent:#8fb6e6; --accent-ink:#0b1626; --accent-soft:#1a2c44;
+  --brass:#f0a066; --brass-soft:#3b2616; --orange:#f08a45;
+  --c-pi:#8fb6e6; --c-esc:#5d7ea6; --c-mi:#f08a45; --c-hoa:#6c7888;
+  --good:#5cc98a; --good-soft:#15301f; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.5}
+.wrap{max-width:1240px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:28px 48px}
+header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px 24px; margin-bottom:18px}
+.eyebrow{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--brass); font-weight:700}
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+.brand img{height:40px; width:auto}
+.wordmark{font-family:var(--f-display); font-weight:700; font-size:22px; letter-spacing:.02em; color:var(--accent); line-height:1}
+.wordmark span{display:block; height:3px; width:44px; background:var(--orange); margin-top:5px; border-radius:2px}
+.eho{display:inline-flex; align-items:center; gap:8px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.06em; line-height:1.15}
+.eho svg{width:30px; height:30px; flex:none}
+.apr-line{display:flex; gap:14px; flex-wrap:wrap; font-size:14px; margin-top:6px}
+.apr-line b{font-family:var(--f-mono); font-weight:500; color:var(--accent)}
+h1{font-family:var(--f-display); font-size:clamp(28px,4vw,40px); line-height:1.05; margin:4px 0 6px; text-wrap:balance; letter-spacing:-.01em}
+.sub{color:var(--muted); margin:0; max-width:60ch}
+.contact{font-size:13px; color:var(--muted); text-align:right}
+.contact b{color:var(--ink)}
+
+/* Scenario tabs */
+.scen-bar{display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin-bottom:18px}
+.tab{font:inherit; text-align:left; cursor:pointer; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:9px 14px; display:flex; flex-direction:column; gap:1px; min-width:0; color:var(--ink)}
+.tab .t1{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.tab .t2{font-size:14px; font-weight:600}
+.tab .t3{font-family:var(--f-mono); font-size:13px; color:var(--muted)}
+.tab[aria-selected="true"]{border-color:var(--accent); box-shadow:inset 0 -3px 0 var(--accent)}
+.tab[aria-selected="true"] .t1{color:var(--accent)}
+.tab.add{justify-content:center; align-items:center; border-style:dashed; color:var(--accent); font-weight:600; font-size:14px}
+.tab.add:disabled{color:var(--muted); cursor:not-allowed; opacity:.7}
+
+.grid{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:22px; align-items:start}
+@media (max-width:920px){ .grid{grid-template-columns:minmax(0,1fr)} }
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px}
+.inputs{display:flex; flex-direction:column; gap:14px}
+.panel h2{font-family:var(--f-display); font-size:18px; margin:0 0 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:8px}
+.panel h2 small{font-family:var(--f-body); font-size:12px; font-weight:500; color:var(--muted)}
+.row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px}
+.mt{margin-top:12px}
+.f{display:flex; flex-direction:column; gap:4px; min-width:0}
+.f label, .lbl{font-size:12px; font-weight:600; color:var(--muted); letter-spacing:.02em}
+.in{position:relative; display:flex; align-items:center}
+.in .pre,.in .suf{position:absolute; font-size:14px; color:var(--muted); pointer-events:none}
+.in .pre{left:10px} .in .suf{right:10px}
+input[type=number],input[type=text],input[type=month],select{
+  width:100%; font:inherit; font-size:15px; color:var(--ink); background:var(--surface-2);
+  border:1px solid var(--line); border-radius:7px; padding:9px 10px; min-height:40px; font-variant-numeric:tabular-nums}
+.in.has-pre input{padding-left:22px} .in.has-suf input{padding-right:30px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+input:disabled{opacity:.75; cursor:not-allowed}
+.hint{font-size:12px; color:var(--muted)}
+.check{display:flex; gap:8px; align-items:center; font-size:13px; color:var(--ink); cursor:pointer}
+.check input{width:16px; height:16px; accent-color:var(--accent); flex:none}
+
+.seg{display:inline-flex; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:3px; gap:3px; flex-wrap:wrap}
+.seg button{font:inherit; font-size:13px; font-weight:600; border:0; background:transparent; color:var(--muted); padding:7px 12px; border-radius:6px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+.sub-box{margin-top:12px; padding:14px; border-radius:8px; background:var(--surface-2); border:1px dashed var(--line); display:flex; flex-direction:column; gap:12px}
+.btn{font:inherit; font-size:13px; font-weight:600; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:8px 13px; border-radius:7px; cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.btn:disabled{opacity:.55; cursor:not-allowed}
+.btn.x{padding:6px 10px; color:var(--muted)}
+.list{display:flex; flex-direction:column; gap:8px}
+.list .item{display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) auto; gap:8px; align-items:center}
+@media (max-width:480px){ .list .item{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+.note{font-size:13px; background:var(--accent-soft); color:var(--ink); padding:9px 12px; border-radius:7px}
+
+/* Results */
+.results{position:sticky; top:calc(env(safe-area-inset-top,0px) + 12px); display:flex; flex-direction:column; gap:14px}
+@media (max-width:920px){ .results{position:static} }
+.hero{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; border-top:4px solid var(--orange)}
+.hero .lbl{text-transform:uppercase; letter-spacing:.1em; font-size:11px}
+.big{font-family:var(--f-display); font-size:clamp(38px,6vw,54px); font-weight:700; line-height:1; margin:6px 0 4px; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.big small{font-size:16px; color:var(--muted); font-weight:600; letter-spacing:0}
+.stackbar{display:flex; height:12px; border-radius:6px; overflow:hidden; margin:14px 0 10px; background:var(--surface-2)}
+.stackbar span{display:block; height:100%}
+.brk{display:flex; flex-direction:column}
+.brk .r{display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px}
+.brk .r:last-child{border-bottom:0}
+.brk .r .k{display:flex; align-items:center; gap:8px; min-width:0}
+.dot{width:9px; height:9px; border-radius:2px; flex:none}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+.brk .tot{font-weight:700; border-top:2px solid var(--ink); border-bottom:0; margin-top:2px}
+.neg{color:var(--good)}
+.steps{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+.chip{font-size:12px; padding:4px 9px; border-radius:20px; background:var(--surface-2); border:1px solid var(--line); white-space:nowrap}
+.chip b{font-family:var(--f-mono); font-weight:500}
+.chip.mi{background:var(--brass-soft); border-color:transparent}
+.facts{display:grid; grid-template-columns:1fr 1fr; gap:0 18px}
+.facts .r{display:flex; justify-content:space-between; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px}
+.facts .r span:first-child{color:var(--muted)}
+@media (max-width:480px){ .facts{grid-template-columns:1fr} }
+.actions{display:flex; gap:8px; flex-wrap:wrap}
+.pdf-box{display:flex; flex-direction:column; gap:10px}
+
+/* Detail */
+.detail{margin-top:22px; display:flex; flex-direction:column; gap:22px}
+.chart-wrap{overflow-x:auto}
+.legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-top:8px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.tbl-wrap{overflow-x:auto; max-height:560px; overflow-y:auto; border:1px solid var(--line); border-radius:8px}
+table{border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+thead th{position:sticky; top:0; background:var(--surface-2); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); z-index:1}
+td{font-family:var(--f-mono); font-size:12.5px}
+td:first-child,td:nth-child(2){font-family:var(--f-body); font-size:13px}
+tr.hl td{background:var(--brass-soft)}
+tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(--line)}
+/* Comparison table */
+#cmpTable th, #cmpTable td{text-align:right}
+#cmpTable th:first-child, #cmpTable td:first-child{text-align:left; font-family:var(--f-body); color:var(--muted); font-size:13px}
+#cmpTable td:nth-child(2){font-family:var(--f-mono); font-size:12.5px}
+#cmpTable thead th{text-transform:none; letter-spacing:0; font-size:13px; color:var(--ink); white-space:normal; min-width:150px}
+#cmpTable thead th.active{box-shadow:inset 0 -3px 0 var(--accent)}
+#cmpTable tr.sec td{background:var(--surface-2); font-family:var(--f-body); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700}
+#cmpTable tr.key td{font-weight:700; font-size:14px}
+#cmpTable td.best{background:var(--good-soft); color:var(--good); font-weight:700}
+.two{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px}
+@media (max-width:920px){ .two{grid-template-columns:minmax(0,1fr)} }
+.disclaimer{font-size:12px; color:var(--muted); max-width:90ch; margin-top:18px}
+.toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; z-index:20; max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion: no-preference){ .stackbar span{transition:width .25s ease} }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="brand" id="brandMark"><div class="wordmark">Responsive Mortgage<span></span></div></div>
+    <h1>Mortgage Payment Calculator</h1>
+    <p class="sub">Compare up to three loan scenarios: fixed, ARM or variable rates, temporary buydowns, APR, and automatic FHA, VA, USDA and conventional mortgage insurance.</p>
+  </div>
+  <div class="contact"><b>Manny Lindo</b>, Senior Loan Officer · NMLS #873412<br>Responsive Mortgage, a division of PRMG (Paramount Residential Mortgage Group) · NMLS #75243<br>813-359-7196 · mlindo@theresponsiveway.com<br><span class="eho" style="margin-top:6px"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 L37 17 H33 V37 H7 V17 H3 Z" fill="currentColor"/><rect x="12" y="20" width="16" height="4" fill="var(--surface)"/><rect x="12" y="28" width="16" height="4" fill="var(--surface)"/></svg><span>EQUAL HOUSING<br>OPPORTUNITY</span></span></div>
+</header>
+
+<div class="scen-bar" id="scenBar" role="tablist" aria-label="Scenarios"></div>
+
+<div class="grid">
+<div class="inputs">
+
+  <section class="panel">
+    <h2>Property &amp; loan <small id="editing"></small></h2>
+    <div class="row">
+      <div class="f"><label for="scName">Scenario name (optional)</label><input id="scName" type="text" placeholder="Uses loan type and term"></div>
+      <div class="f"><label for="loanType">Loan type</label>
+        <select id="loanType"><option value="conv">Conventional</option><option value="fha" selected>FHA</option><option value="va">VA</option><option value="usda">USDA</option></select></div>
+    </div>
+    <div class="row mt">
+      <div class="f"><label for="price">Purchase price</label><div class="in has-pre"><span class="pre">$</span><input id="price" type="number" inputmode="decimal" value="400000" step="1000"></div></div>
+      <div class="f"><label for="dpAmt">Down payment</label><div class="in has-pre"><span class="pre">$</span><input id="dpAmt" type="number" inputmode="decimal" value="14000" step="500"></div></div>
+      <div class="f"><label for="dpPct">Down payment %</label><div class="in has-suf"><input id="dpPct" type="number" inputmode="decimal" value="3.5" step="0.5"><span class="suf">%</span></div></div>
+    </div>
+    <div class="row mt">
+      <div class="f"><label for="term">Amortization</label>
+        <select id="term"><option value="40">40 years</option><option value="30" selected>30 years</option><option value="25">25 years</option><option value="20">20 years</option><option value="15">15 years</option><option value="10">10 years</option><option value="custom">Custom</option></select></div>
+      <div class="f" id="termCustomF" hidden><label for="termCustom">Custom term (years)</label><input id="termCustom" type="number" value="22" min="1" max="50"></div>
+      <div class="f"><label for="firstPay">First payment</label><input id="firstPay" type="month" value="2026-12"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Interest rate</h2>
+    <div class="seg" role="group" aria-label="Rate type">
+      <button type="button" data-rt="fixed" aria-pressed="true">Fixed</button>
+      <button type="button" data-rt="arm" aria-pressed="false">Adjustable (ARM)</button>
+      <button type="button" data-rt="var" aria-pressed="false">Variable schedule</button>
+    </div>
+    <div class="row mt">
+      <div class="f"><label for="rate" id="rateLbl">Note rate</label><div class="in has-suf"><input id="rate" type="number" inputmode="decimal" value="6.25" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="extra">Extra principal / month</label><div class="in has-pre"><span class="pre">$</span><input id="extra" type="number" inputmode="decimal" value="0" step="25"></div></div>
+    </div>
+
+    <div class="sub-box" id="armBox" hidden>
+      <div class="row">
+        <div class="f"><label for="armProd">ARM product</label>
+          <select id="armProd">
+            <option value="36|6">3/6 ARM</option><option value="60|6" selected>5/6 ARM</option><option value="84|6">7/6 ARM</option><option value="120|6">10/6 ARM</option>
+            <option value="36|12">3/1 ARM</option><option value="60|12">5/1 ARM</option><option value="84|12">7/1 ARM</option><option value="120|12">10/1 ARM</option>
+          </select></div>
+        <div class="f"><label for="armIndex">Index (e.g. 30-day avg SOFR)</label><div class="in has-suf"><input id="armIndex" type="number" value="4.00" step="0.05"><span class="suf">%</span></div></div>
+        <div class="f"><label for="armMargin">Margin</label><div class="in has-suf"><input id="armMargin" type="number" value="2.75" step="0.125"><span class="suf">%</span></div></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="capInit">Initial cap</label><div class="in has-suf"><input id="capInit" type="number" value="2" step="0.5"><span class="suf">%</span></div></div>
+        <div class="f"><label for="capPer">Periodic cap</label><div class="in has-suf"><input id="capPer" type="number" value="1" step="0.5"><span class="suf">%</span></div></div>
+        <div class="f"><label for="capLife">Lifetime cap</label><div class="in has-suf"><input id="capLife" type="number" value="5" step="0.5"><span class="suf">%</span></div></div>
+      </div>
+      <div class="row">
+        <div class="f"><label for="armScen">Rate scenario after the fixed period</label>
+          <select id="armScen">
+            <option value="flat">Index stays where it is</option>
+            <option value="drift">Index moves each adjustment</option>
+            <option value="worst">Worst case (every cap is hit)</option>
+            <option value="best">Best case (falls to the floor)</option>
+          </select></div>
+        <div class="f" id="driftF" hidden><label for="armDrift">Index change per adjustment</label><div class="in has-suf"><input id="armDrift" type="number" value="0.25" step="0.125"><span class="suf">%</span></div></div>
+      </div>
+      <div class="hint" id="armHint"></div>
+    </div>
+
+    <div class="sub-box" id="varBox" hidden>
+      <div class="hint">The rate above applies from year 1. Add the year each new rate starts. The payment re-amortizes over the remaining term at each change.</div>
+      <div class="list" id="varList"></div>
+      <div><button type="button" class="btn" id="addVar">Add rate change</button></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Taxes, insurance &amp; fees</h2>
+    <div class="row">
+      <div class="f"><label for="taxAmt">Property taxes / year</label><div class="in has-pre"><span class="pre">$</span><input id="taxAmt" type="number" value="7000" step="100"></div></div>
+      <div class="f"><label for="taxPct">Tax rate (% of price)</label><div class="in has-suf"><input id="taxPct" type="number" value="1.75" step="0.05"><span class="suf">%</span></div></div>
+    </div>
+    <div class="row mt">
+      <div class="f"><label for="ins">Homeowners insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="ins" type="number" value="3600" step="100"></div></div>
+      <div class="f"><label for="flood">Flood insurance / year</label><div class="in has-pre"><span class="pre">$</span><input id="flood" type="number" value="0" step="50"></div></div>
+      <div class="f"><label for="hoa">HOA / month</label><div class="in has-pre"><span class="pre">$</span><input id="hoa" type="number" value="75" step="5"></div></div>
+    </div>
+    <div style="margin-top:14px" class="lbl">Other fees</div>
+    <div class="list" id="feeList" style="margin-top:8px"></div>
+    <div style="margin-top:8px"><button type="button" class="btn" id="addFee">Add fee</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>Mortgage insurance <small id="miTag"></small></h2>
+    <div class="row">
+      <div class="f" id="fScore"><label for="score">Credit score (PMI estimate)</label>
+        <select id="score"><option value="0">760+</option><option value="1">740 to 759</option><option value="2" selected>720 to 739</option><option value="3">700 to 719</option><option value="4">680 to 699</option><option value="5">660 to 679</option><option value="6">640 to 659</option><option value="7">620 to 639</option></select></div>
+      <div class="f" id="fVa" hidden><label for="vaUse">VA funding fee</label>
+        <select id="vaUse"><option value="first">First use</option><option value="sub">Subsequent use</option><option value="exempt">Exempt (service-connected disability)</option></select></div>
+    </div>
+    <label class="check mt"><input type="checkbox" id="miAuto" checked> Calculate MI rates automatically from loan amount, LTV and term</label>
+    <div class="row mt">
+      <div class="f"><label for="miUp" id="miUpLbl">Upfront MI</label><div class="in has-suf"><input id="miUp" type="number" step="0.05"><span class="suf">%</span></div></div>
+      <div class="f"><label for="miAnn" id="miAnnLbl">Annual MI</label><div class="in has-suf"><input id="miAnn" type="number" step="0.01"><span class="suf">%</span></div></div>
+    </div>
+    <label class="check mt"><input type="checkbox" id="miFin" checked> Finance the upfront MI into the loan</label>
+    <div class="note mt" id="miNote"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Buydowns &amp; points</h2>
+    <div class="lbl">Temporary buydown</div>
+    <div class="seg" role="group" aria-label="Buydown" style="margin-top:6px">
+      <button type="button" data-bd="" aria-pressed="false">None</button>
+      <button type="button" data-bd="3,2,1" aria-pressed="false">3-2-1</button>
+      <button type="button" data-bd="2,1" aria-pressed="true">2-1</button>
+      <button type="button" data-bd="1,0" aria-pressed="false">1-0</button>
+      <button type="button" data-bd="1,1" aria-pressed="false">1-1</button>
+      <button type="button" data-bd="custom" aria-pressed="false">Custom</button>
+    </div>
+    <div class="row mt">
+      <div class="f" id="bdCustomF" hidden><label for="bdCustom">Rate reduction by year (comma separated)</label><input id="bdCustom" type="text" value="1.5, 0.5"></div>
+      <div class="f"><label for="bdPayer">Buydown paid by</label><select id="bdPayer"><option>Seller</option><option>Builder</option><option>Lender</option><option>Buyer</option><option>Agent</option></select></div>
+    </div>
+    <div style="margin-top:14px" class="lbl">Permanent buydown (discount points)</div>
+    <div class="row" style="margin-top:6px">
+      <div class="f"><label for="points">Points paid</label><div class="in has-suf"><input id="points" type="number" value="0" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="parRate">Rate without points (for break-even)</label><div class="in has-suf"><input id="parRate" type="number" value="" placeholder="optional" step="0.125"><span class="suf">%</span></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>APR <small>Prepaid finance charges</small></h2>
+    <div class="row">
+      <div class="f"><label for="origPct">Origination fee</label><div class="in has-suf"><input id="origPct" type="number" value="0" step="0.125"><span class="suf">%</span></div></div>
+      <div class="f"><label for="lenderFees">Lender fees (underwriting, processing)</label><div class="in has-pre"><span class="pre">$</span><input id="lenderFees" type="number" value="1295" step="25"></div></div>
+    </div>
+    <div class="row mt">
+      <div class="f"><label for="otherPfc">Other finance charges (settlement fee, tax service, flood cert)</label><div class="in has-pre"><span class="pre">$</span><input id="otherPfc" type="number" value="650" step="25"></div></div>
+      <div class="f"><label for="piDays">Prepaid interest (days)</label><input id="piDays" type="number" value="15" min="0" max="31"></div>
+    </div>
+    <label class="check mt"><input type="checkbox" id="aprBd"> Temporary buydown is written into the note (include it in the APR)</label>
+    <div class="note mt" id="aprNote"></div>
+  </section>
+</div>
+
+<aside class="results">
+  <div class="hero">
+    <div class="lbl" id="heroLbl">Monthly payment, first payment</div>
+    <div class="big" id="heroPay">$0</div>
+    <div class="apr-line" id="heroApr"></div>
+    <div class="hint" id="heroSub"></div>
+    <div class="stackbar" id="stackbar"></div>
+    <div class="brk" id="brk"></div>
+    <div class="steps" id="steps"></div>
+  </div>
+  <div class="panel">
+    <h2>Loan summary</h2>
+    <div class="facts" id="facts"></div>
+  </div>
+  <div class="panel pdf-box">
+    <h2 style="margin:0">Share as PDF</h2>
+    <div class="row">
+      <div class="f"><label for="pdfFor">Prepared for</label><input id="pdfFor" type="text" placeholder="Borrower or agent name"></div>
+      <div class="f"><label for="pdfProp">Property (optional)</label><input id="pdfProp" type="text" placeholder="Address or area"></div>
+    </div>
+    <div class="f"><label for="pdfScope">Include</label>
+      <select id="pdfScope"><option value="all">All scenarios with comparison</option><option value="one">Current scenario only</option></select></div>
+    <label class="check"><input type="checkbox" id="pdfAmort"> Add yearly amortization schedule</label>
+    <div class="actions">
+      <button type="button" class="btn primary" id="pdfBtn">Download PDF</button>
+      <button type="button" class="btn" id="copyBtn">Copy summary</button>
+      <button type="button" class="btn" id="resetBtn">Reset to examples</button>
+    </div>
+    <div class="hint" id="pdfHint">You'll be asked to confirm the download. Attach the file to your email.</div>
+  </div>
+</aside>
+</div>
+
+<div class="detail">
+  <section class="panel">
+    <h2>Scenario comparison <small>Lowest payment, cash and cost are highlighted</small></h2>
+    <div class="tbl-wrap" style="max-height:none"><table id="cmpTable"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Payment by year <small id="chartTag"></small></h2>
+    <div class="chart-wrap" id="chart"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--c-pi)"></i>Principal &amp; interest</span>
+      <span><i class="dot" style="background:var(--c-esc)"></i>Taxes &amp; insurance</span>
+      <span><i class="dot" style="background:var(--c-mi)"></i>Mortgage insurance</span>
+      <span><i class="dot" style="background:var(--c-hoa)"></i>HOA &amp; other fees</span>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <h2>Buydown breakdown <small id="bdTag"></small></h2>
+      <div class="tbl-wrap" style="max-height:none"><table id="bdTable"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Rate &amp; payment changes</h2>
+      <div class="tbl-wrap" style="max-height:none"><table id="rateTable"></table></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Amortization schedule
+      <span class="seg" role="group" aria-label="Schedule view" style="font-size:13px">
+        <button type="button" data-sv="year" aria-pressed="true">Yearly</button>
+        <button type="button" data-sv="month" aria-pressed="false">Monthly</button>
+      </span>
+    </h2>
+    <div class="tbl-wrap"><table id="amTable"></table></div>
+  </section>
+
+  <p class="disclaimer" id="disclaimer"></p>
+</div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const LO = {name:'Manny Lindo', title:'Senior Loan Officer', nmls:'873412', phone:'813-359-7196', email:'mlindo@theresponsiveway.com',
+  co:'Responsive Mortgage, a division of PRMG (Paramount Residential Mortgage Group)', coNmls:'75243', addr:'3660 Erindale Drive, Valrico, FL 33596', web:'ResponsiveMortgage.com'};
+const DISCLAIMER = 'Estimates for illustration only. This is not a commitment to lend, a rate lock or a Loan Estimate. Rates, terms and program availability are subject to credit approval and change without notice. FHA annual MIP follows the HUD rate table and is calculated on the average scheduled balance for each loan year. USDA annual fee 0.35%, upfront guarantee fee 1.00%. VA funding fee follows current VA charts. Conventional PMI is a rate-card estimate and is shown ending when the balance reaches 78% of the purchase price. Taxes, insurance and HOA are estimates. APR includes the prepaid finance charges entered and mortgage insurance; ARM APRs assume the current index stays unchanged.';
+$('disclaimer').textContent = DISCLAIMER + ' ' + LO.co + ', NMLS #' + LO.coNmls + '. Equal Housing Opportunity.';
+function $(id){ return document.getElementById(id); }
+
+const money = (v, d=0) => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d});
+const m2 = v => money(v,2);
+const pctf = (v,d=3) => (+(+v).toFixed(d)).toString() + '%';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+function pmt(rate, n, P){ if(n<=0||P<=0) return 0; const r = rate/1200; if(r===0) return P/n; return P*r/(1-Math.pow(1+r,-n)); }
+
+/* ---------- Scenario state ---------- */
+const FIELDS = ['scName','price','dpAmt','dpPct','loanType','term','termCustom','firstPay','rate','extra','armProd','armIndex','armMargin','capInit','capPer','capLife','armScen','armDrift','taxAmt','taxPct','ins','flood','hoa','score','vaUse','miUp','miAnn','bdCustom','bdPayer','points','parRate','origPct','lenderFees','otherPfc','piDays'];
+const CHECKS = ['miAuto','miFin','aprBd'];
+let ui = {rateType:'fixed', buydown:'2,1', fees:[{name:'CDD fee', amt:0, freq:'year'}], varRows:[{year:3, rate:6.75},{year:6, rate:7.25}]};
+let scenarios = [], active = 0, schedView = 'year';
+
+function readState(){
+  const S = {}; FIELDS.forEach(f=>S[f]=$(f).value); CHECKS.forEach(f=>S[f]=$(f).checked);
+  S.rateType = ui.rateType; S.buydown = ui.buydown; S.fees = clone(ui.fees); S.varRows = clone(ui.varRows); return S;
+}
+function applyState(S){
+  FIELDS.forEach(f=>{ if(S[f]!==undefined) $(f).value = S[f]; }); CHECKS.forEach(f=>$(f).checked = !!S[f]);
+  ui.rateType = S.rateType; ui.buydown = S.buydown; ui.fees = clone(S.fees); ui.varRows = clone(S.varRows);
+  syncUI(); renderFees(); renderVar();
+}
+function syncUI(){
+  document.querySelectorAll('[data-rt]').forEach(x=>x.setAttribute('aria-pressed', x.dataset.rt===ui.rateType));
+  document.querySelectorAll('[data-bd]').forEach(x=>x.setAttribute('aria-pressed', x.dataset.bd===ui.buydown));
+  $('armBox').hidden = ui.rateType!=='arm'; $('varBox').hidden = ui.rateType!=='var';
+  $('rateLbl').textContent = ui.rateType==='arm' ? 'Initial (start) rate' : ui.rateType==='var' ? 'Year 1 rate' : 'Note rate';
+  $('bdCustomF').hidden = ui.buydown!=='custom';
+  $('termCustomF').hidden = $('term').value!=='custom';
+  $('driftF').hidden = $('armScen').value!=='drift';
+  const t = $('loanType').value, a = $('miAuto').checked;
+  $('miUp').disabled = a; $('miAnn').disabled = a; $('fScore').hidden = t!=='conv'; $('fVa').hidden = t!=='va';
+}
+const nv = (S,k) => { const v = parseFloat(S[k]); return isFinite(v) ? v : 0; };
+
+/* ---------- MI tables ---------- */
+const PMI = { 95:[0.55,0.70,0.87,1.03,1.25,1.55,1.70,1.86], 90:[0.38,0.49,0.63,0.74,0.92,1.18,1.29,1.40], 85:[0.28,0.36,0.46,0.55,0.66,0.86,0.93,1.00], 80:[0.19,0.23,0.29,0.34,0.42,0.55,0.60,0.65] };
+function fhaAnnual(base, ltv, yrs){
+  const big = base > 726200;
+  if(yrs > 15) return big ? (ltv>95?0.75:0.70) : (ltv>95?0.55:0.50);
+  if(!big) return ltv>90?0.40:0.15;
+  return ltv>90?0.65:(ltv>78?0.40:0.15);
+}
+function autoMI(S, base, ltv, yrs, dpPct){
+  const type = S.loanType;
+  if(type==='fha') return {up:1.75, ann:fhaAnnual(base,ltv,yrs)};
+  if(type==='usda') return {up:1.00, ann:0.35};
+  if(type==='va'){
+    if(S.vaUse==='exempt') return {up:0, ann:0};
+    return {up: dpPct>=10 ? 1.25 : dpPct>=5 ? 1.50 : (S.vaUse==='sub'?3.30:2.15), ann:0};
+  }
+  if(ltv<=80) return {up:0, ann:0};
+  const band = ltv>95?95:ltv>90?90:ltv>85?85:80;
+  return {up:0, ann:PMI[band][+S.score||0]};
+}
+
+/* ---------- Rate path ---------- */
+const r8 = x => Math.round(x*8)/8;
+function armParams(S){
+  const [fixedM, adj] = String(S.armProd).split('|').map(Number);
+  return {fixedM, adj, index:nv(S,'armIndex'), margin:nv(S,'armMargin'), ci:nv(S,'capInit'), cp:nv(S,'capPer'), cl:nv(S,'capLife'), scen:S.armScen, drift:nv(S,'armDrift')};
+}
+function buildRates(S, n, start){
+  const rates = new Array(n).fill(start);
+  if(S.rateType==='arm'){
+    const a = armParams(S), floor = a.margin, ceil = start + a.cl;
+    let cur = start, k = 0;
+    for(let m=a.fixedM+1; m<=n; m+=a.adj){
+      let target;
+      if(a.scen==='worst') target = 99; else if(a.scen==='best') target = 0;
+      else target = r8((a.scen==='drift' ? a.index + a.drift*(k+1) : a.index) + a.margin);
+      const cap = k===0 ? a.ci : a.cp;
+      let nr = Math.min(Math.max(target, cur-cap), cur+cap);
+      nr = Math.max(Math.min(nr, ceil), floor);
+      cur = nr; k++;
+      for(let j=m; j<m+a.adj && j<=n; j++) rates[j-1] = cur;
+    }
+  } else if(S.rateType==='var'){
+    const rows = S.varRows.filter(r=>r.year>1).sort((a,b)=>a.year-b.year);
+    for(let m=1;m<=n;m++){ let r = start; for(const v of rows) if((v.year-1)*12+1 <= m) r = v.rate; rates[m-1] = r; }
+  }
+  return rates;
+}
+function bdReductions(S){
+  if(!S.buydown) return [];
+  const src = S.buydown==='custom' ? S.bdCustom : S.buydown;
+  return String(src).split(',').map(s=>parseFloat(s)).filter(v=>isFinite(v)&&v>=0);
+}
+const termYears = S => S.term==='custom' ? Math.max(1, Math.min(50, nv(S,'termCustom'))) : +S.term;
+function dateLabel(S, m){
+  let [y, mo] = String(S.firstPay || '2026-12').split('-').map(Number); if(!y) {y=2026; mo=12;}
+  const idx = (mo-1) + (m-1); return MONTHS[((idx%12)+12)%12] + ' ' + (y + Math.floor(idx/12));
+}
+
+/* ---------- Core calc ---------- */
+const TYPE_NAME = {conv:'Conventional', fha:'FHA', va:'VA', usda:'USDA'};
+const MI_NAME = {conv:'PMI', fha:'FHA MIP', usda:'USDA annual fee', va:'Mortgage insurance'};
+const UP_NAME = {conv:'Upfront MI', fha:'Upfront MIP (UFMIP)', usda:'Upfront guarantee fee', va:'VA funding fee'};
+const ARM_NAME = {'36|6':'3/6 ARM','60|6':'5/6 ARM','84|6':'7/6 ARM','120|6':'10/6 ARM','36|12':'3/1 ARM','60|12':'5/1 ARM','84|12':'7/1 ARM','120|12':'10/1 ARM'};
+function rateTypeName(S){ return S.rateType==='arm' ? ARM_NAME[S.armProd] : S.rateType==='var' ? 'Variable' : 'Fixed'; }
+function bdName(S){ return S.buydown ? (S.buydown==='custom' ? 'custom' : S.buydown.replace(/,/g,'-')) + ' buydown' : ''; }
+function autoLabel(S){ return S.scName && S.scName.trim() ? S.scName.trim() : `${TYPE_NAME[S.loanType]} ${termYears(S)}-yr ${rateTypeName(S)}${S.buydown?', '+bdName(S):''}`; }
+
+function calc(S, forApr=false){
+  const price = nv(S,'price'), dp = Math.min(nv(S,'dpAmt'), price);
+  const base = Math.max(price - dp, 0);
+  const dpPct = price>0 ? dp/price*100 : 0, ltv = price>0 ? base/price*100 : 0;
+  const yrs = termYears(S), n = Math.round(yrs*12), type = S.loanType, startRate = nv(S,'rate');
+  const auto = autoMI(S, base, ltv, yrs, dpPct);
+  const upPct = S.miAuto ? auto.up : nv(S,'miUp'), annPct = S.miAuto ? auto.ann : nv(S,'miAnn');
+  const upfront = base*upPct/100, financed = S.miFin && upfront>0;
+  const loan = base + (financed ? upfront : 0), scale = loan>0 ? base/loan : 1;
+  const rates = buildRates(S, n, startRate), extra = Math.max(0, nv(S,'extra'));
+  const reds = bdReductions(S), bdMonths = reds.length*12;
+
+  const rows = []; let bal = loan, pay = 0, prev = null, lastM = 1, lastBal = loan;
+  for(let m=1; m<=n && bal>0.005; m++){
+    const r = rates[m-1];
+    if(r!==prev){ pay = pmt(r, n-m+1, bal); prev = r; lastM = m; lastBal = bal; }
+    const startBal = bal, int = bal*r/1200;
+    const prin = Math.min(pay-int, bal), ex = Math.min(extra, bal-prin);
+    bal -= prin + ex; if(bal<0.005) bal = 0;
+    let sub = 0, bRate = r;
+    if(m<=bdMonths){
+      bRate = Math.max(r - (reds[Math.floor((m-1)/12)]||0), 0);
+      sub = Math.max(0, (prin+int) - pmt(bRate, n-lastM+1, lastBal));
+    }
+    rows.push({m, rate:r, bRate, startBal, int, prin, ex, pi:prin+int, sub, bal, mi:0});
+  }
+
+  let miEnd = 0, miRule = '';
+  if(annPct>0){
+    if(type==='conv'){
+      const m0 = base*annPct/1200;
+      for(const row of rows){ if(row.startBal <= 0.78*price) break; row.mi = m0; miEnd = row.m; }
+      miRule = 'PMI drops when the balance reaches 78% of the purchase price' + (miEnd && miEnd<rows.length ? ' (around ' + dateLabel(S, miEnd+1) + ').' : '.') + ' The borrower can request removal at 80%.';
+    } else {
+      const dur = type==='fha' ? (ltv<=90 ? 132 : n) : n;
+      for(let y=0; y*12<rows.length; y++){
+        const yr = rows.slice(y*12, y*12+12);
+        const mmi = yr.reduce((s,r)=>s+r.startBal,0)/12 * scale * annPct/1200;
+        for(const row of yr) if(row.m<=dur){ row.mi = mmi; miEnd = row.m; }
+      }
+      miRule = type==='fha'
+        ? (ltv<=90 ? 'FHA MIP stays 11 years because the base LTV is 90% or less.' : 'FHA MIP stays for the life of the loan because the base LTV is above 90%. Refinancing to conventional is the usual way out.')
+        : 'USDA annual fee stays for the life of the loan.';
+      miRule += ' Monthly amount is recalculated each loan year on the average balance.';
+    }
+  } else miRule = type==='va' ? 'VA loans have no monthly mortgage insurance.' : type==='conv' ? 'No PMI needed at 80% LTV or less.' : 'No annual MI entered.';
+  if(type==='va' && upPct>0) miRule += ' VA funding fee of ' + pctf(upPct,2) + ' is ' + (financed?'financed into the loan.':'paid at closing.');
+  if(type==='va' && S.vaUse==='exempt') miRule += ' Exempt veterans pay no funding fee.';
+
+  const tax = nv(S,'taxAmt')/12, ins = nv(S,'ins')/12, flood = nv(S,'flood')/12, hoa = nv(S,'hoa');
+  const feeM = S.fees.map(f => ({name:f.name||'Other fee', m: f.freq==='year' ? (+f.amt||0)/12 : (+f.amt||0)}));
+  const otherM = feeM.reduce((s,f)=>s+f.m,0);
+  for(const row of rows){ row.esc = tax+ins+flood; row.hoa = hoa+otherM; row.total = row.pi - row.sub + row.mi + row.esc + row.hoa; }
+
+  const points = nv(S,'points'), pointsCost = loan*points/100;
+  const subTotal = rows.reduce((s,r)=>s+r.sub,0);
+  const totInt = rows.reduce((s,r)=>s+r.int,0), totMI = rows.reduce((s,r)=>s+r.mi,0);
+  const cash = dp + pointsCost + (financed ? 0 : upfront);
+  const pay60 = rows.slice(0,60).reduce((s,r)=>s+r.total,0);
+  const apr = forApr ? null : aprCalc(S, {loan, upfront, pointsCost, startRate});
+  return {apr, S, price, dp, dpPct, base, ltv, yrs, n, type, startRate, upPct, annPct, upfront, financed, loan, rows, rates, reds,
+    tax, ins, flood, hoa, feeM, otherM, miEnd, miRule, points, pointsCost, subTotal, extra, totInt, totMI, cash, cost5: pay60 + cash,
+    yearly: yearAgg(rows), r1: rows[0] || {pi:0,sub:0,mi:0,esc:0,hoa:0,total:0,rate:startRate,bRate:startRate}};
+}
+
+function yearAgg(rows){
+  const out = [];
+  rows.forEach(r=>{ const y = Math.floor((r.m-1)/12); if(!out[y]) out[y] = {pi:0,sub:0,mi:0,esc:0,hoa:0,total:0,int:0,prin:0,ex:0,bal:0,months:0,rateMin:99,rateMax:0};
+    const o = out[y]; o.pi+=r.pi; o.sub+=r.sub; o.mi+=r.mi; o.esc+=r.esc; o.hoa+=r.hoa; o.total+=r.total; o.int+=r.int; o.prin+=r.prin; o.ex+=r.ex; o.bal=r.bal; o.months++;
+    o.rateMin=Math.min(o.rateMin,r.rate); o.rateMax=Math.max(o.rateMax,r.rate); });
+  return out;
+}
+function paySteps(c){
+  const steps = [];
+  let prevPI = null, prevMI = null;
+  c.yearly.forEach((y,i)=>{ const k = y.months||1, t = y.total/k, pi = (y.pi-y.sub)/k, hasMI = y.mi>0;
+    if(prevPI===null || Math.abs(pi-prevPI)>=1 || hasMI!==prevMI){ steps.push({y:i+1, t}); }
+    prevPI = pi; prevMI = hasMI; });
+  return steps.slice(0,9).map((s,i,a)=>{ const nextY = a[i+1] ? a[i+1].y-1 : null;
+    return {span: nextY===null ? `Year ${s.y}+` : (nextY===s.y ? `Year ${s.y}` : `Years ${s.y} to ${nextY}`), t:s.t}; });
+}
+function breakdown(c){
+  const r1 = c.r1;
+  return [
+    ['Principal & interest', r1.pi, 'var(--c-pi)'],
+    r1.sub>0 ? ['Buydown subsidy', -r1.sub, null] : null,
+    ['Property taxes', c.tax, 'var(--c-esc)'],
+    ['Homeowners insurance', c.ins, 'var(--c-esc)'],
+    c.flood>0 ? ['Flood insurance', c.flood, 'var(--c-esc)'] : null,
+    r1.mi>0 ? [MI_NAME[c.type], r1.mi, 'var(--c-mi)'] : null,
+    c.hoa>0 ? ['HOA', c.hoa, 'var(--c-hoa)'] : null,
+    ...c.feeM.filter(f=>f.m>0).map(f=>[f.name, f.m, 'var(--c-hoa)'])
+  ].filter(Boolean);
+}
+function factsList(c){
+  const S = c.S, payoff = c.rows.length;
+  const f = [
+    ['Purchase price', money(c.price)],
+    ['Down payment', money(c.dp) + ' (' + pctf(c.dpPct,2) + ')'],
+    ['Base loan amount', money(c.base)],
+    [UP_NAME[c.type], c.upfront>0 ? money(c.upfront) + (c.financed?' financed':' at closing') : 'None'],
+    ['Total loan amount', money(c.loan)],
+    ['LTV (base / total)', pctf(c.ltv,2) + ' / ' + pctf(c.price? c.loan/c.price*100:0,2)],
+    ['Starting note rate', pctf(c.startRate)],
+    [MI_NAME[c.type] + ' rate', c.annPct>0 ? pctf(c.annPct,2) + ' / yr' : 'None'],
+    ['Discount points', c.points>0 ? money(c.pointsCost) + ' (' + pctf(c.points) + ')' : 'None'],
+    ['Buydown cost', c.subTotal>0 ? money(c.subTotal,2) + ' (' + String(S.bdPayer).toLowerCase() + ')' : 'None'],
+    ['Total interest', money(c.totInt)],
+    ['Total mortgage insurance', money(c.totMI)],
+    ['Payoff', dateLabel(S, payoff) + (payoff < c.n ? ' (' + ((c.n-payoff)/12).toFixed(1) + ' yrs early)' : '')],
+    ['Down payment, points' + (c.financed||!c.upfront?'':', upfront MI'), money(c.cash)],
+    ['APR', pctf(c.apr.apr)],
+    ['Amount financed', money(c.apr.af)],
+    ['Finance charge', money(c.apr.fc)],
+    ['Prepaid finance charges', money(c.apr.pfc)]
+  ];
+  const par = nv(S,'parRate');
+  if(par>0 && c.points>0){
+    const save = pmt(par, c.n, c.loan) - pmt(c.startRate, c.n, c.loan);
+    f.push(['Points break-even', save>0 ? Math.ceil(c.pointsCost/save) + ' months (' + m2(save) + '/mo saved)' : 'No savings vs. par']);
+  }
+  return f;
+}
+function bdRows(c){
+  const out = [];
+  c.reds.forEach((red,i)=>{ const yr = c.rows.slice(i*12, i*12+12); if(!yr.length) return; const r0 = yr[0];
+    out.push([`Year ${i+1}`, pctf(r0.bRate), m2(r0.pi - r0.sub), m2(r0.sub), m2(yr.reduce((s,r)=>s+r.sub,0))]); });
+  const after = c.rows[c.reds.length*12];
+  if(after && out.length) out.push([`Year ${c.reds.length+1}+`, pctf(after.rate), m2(after.pi), '$0.00', '$0.00']);
+  return out;
+}
+function rateRows(c){
+  const out = []; let prev = null;
+  for(const r of c.rows){ if(r.rate!==prev){ out.push([String(r.m), dateLabel(c.S, r.m), pctf(r.rate), m2(r.pi), prev===null?'':(r.rate>prev?'+':'')+(r.rate-prev).toFixed(3)+'%']); prev = r.rate; } }
+  return out;
+}
+
+/* ---------- APR (Reg Z actuarial method) ---------- */
+function aprCalc(S, k){
+  // Payment stream: note P&I + monthly MI, no extra principal; ARMs use today's index held flat.
+  const c = calc(Object.assign({}, S, {extra:'0', armScen:'flat'}), true);
+  const orig = k.loan*nv(S,'origPct')/100, lender = nv(S,'lenderFees'), other = nv(S,'otherPfc');
+  const prepaidInt = k.loan*k.startRate/100/365*Math.max(0, nv(S,'piDays'));
+  const pfc = orig + k.pointsCost + lender + other + prepaidInt + k.upfront;
+  const af = k.loan - pfc;
+  const pays = c.rows.map(r => (S.aprBd ? r.pi - r.sub : r.pi) + r.mi);
+  const tot = pays.reduce((a,b)=>a+b,0);
+  const pv = i => { let v = 0, d = 1; for(const p of pays){ d /= (1+i); v += p*d; } return v; };
+  let lo = 0, hi = 0.05;
+  if(af<=0 || !pays.length) return {apr:0, af, pfc, fc:0, tot, items:{orig, points:k.pointsCost, lender, other, prepaidInt, mi:k.upfront}};
+  for(let j=0;j<80;j++){ const mid=(lo+hi)/2; if(pv(mid) > af) lo = mid; else hi = mid; }
+  return {apr:(lo+hi)/2*1200, af, pfc, fc: tot - af, tot, items:{orig, points:k.pointsCost, lender, other, prepaidInt, mi:k.upfront}};
+}
+
+/* ---------- Render ---------- */
+let results = [];
+function recalcAll(){ results = scenarios.map(S => calc(S)); }
+
+function render(){
+  scenarios[active] = readState();
+  recalcAll();
+  const c = results[active], r1 = c.r1, S = c.S;
+  if(S.miAuto){ $('miUp').value = c.upPct; $('miAnn').value = c.annPct; }
+
+  renderTabs();
+  $('editing').textContent = 'Editing scenario ' + (active+1);
+  $('heroLbl').textContent = 'Scenario ' + (active+1) + ', first payment';
+  $('heroPay').innerHTML = money(r1.total) + ' <small>/ month</small>';
+  $('heroApr').innerHTML = `<span>Rate <b>${pctf(c.startRate)}</b></span><span>APR <b>${pctf(c.apr.apr)}</b></span>`;
+  const it = c.apr.items;
+  $('aprNote').textContent = 'APR ' + pctf(c.apr.apr) + '. Prepaid finance charges ' + money(c.apr.pfc) + ': ' +
+    [['origination', it.orig], ['discount points', it.points], ['lender fees', it.lender], ['other charges', it.other], ['prepaid interest', it.prepaidInt], [UP_NAME[c.type].toLowerCase(), it.mi]]
+      .filter(x=>x[1]>0).map(x=>x[0] + ' ' + money(x[1])).join(', ') + '. Amount financed ' + money(c.apr.af) + '.' +
+    (S.rateType==='arm' ? ' ARM APR assumes today\'s index stays the same after the fixed period.' : '') +
+    (c.reds.length && !S.aprBd ? ' The temporary buydown is left out of the APR.' : '');
+  $('heroSub').textContent = (r1.sub>0 ? 'With buydown at ' + pctf(r1.bRate) + '. Note rate ' + pctf(r1.rate) + '. ' : 'Rate ' + pctf(r1.rate) + '. ') + 'Loan amount ' + money(c.loan) + ' over ' + c.yrs + ' years.';
+
+  $('brk').innerHTML = breakdown(c).map(([k,v,col]) =>
+    `<div class="r"><span class="k"><i class="dot" ${col?`style="background:${col}"`:''}></i>${esc(k)}</span><span class="num ${v<0?'neg':''}">${m2(v)}</span></div>`).join('')
+    + `<div class="r tot"><span>Total monthly payment</span><span class="num">${m2(r1.total)}</span></div>`;
+  const segs = [['var(--c-pi)', r1.pi - r1.sub], ['var(--c-esc)', r1.esc], ['var(--c-mi)', r1.mi], ['var(--c-hoa)', r1.hoa]];
+  const tot = segs.reduce((s,x)=>s+Math.max(0,x[1]),0) || 1;
+  $('stackbar').innerHTML = segs.map(([col,v])=>`<span style="width:${Math.max(0,v)/tot*100}%;background:${col}"></span>`).join('');
+
+  const steps = paySteps(c);
+  let chips = steps.length>1 ? steps.map(s=>`<span class="chip">${s.span}: <b>${money(s.t)}</b></span>`).join('') : '';
+  if(c.miEnd && c.miEnd < c.rows.length) chips += `<span class="chip mi">${MI_NAME[c.type]} ends ${dateLabel(S, c.miEnd+1)}</span>`;
+  $('steps').innerHTML = chips;
+
+  $('facts').innerHTML = factsList(c).map(([k,v])=>`<div class="r"><span>${esc(k)}</span><span class="num">${v}</span></div>`).join('');
+
+  $('miUpLbl').textContent = UP_NAME[c.type] + (c.type==='va'?'':' (one time)');
+  $('miAnnLbl').textContent = c.type==='va' ? 'Annual MI (none on VA)' : MI_NAME[c.type] + ' (annual)';
+  $('miTag').textContent = {conv:'Conventional PMI', fha:'FHA MIP', va:'VA funding fee', usda:'USDA guarantee fee'}[c.type];
+  $('miNote').textContent = (c.annPct>0 && c.rows[0] ? 'First-year ' + MI_NAME[c.type] + ': ' + m2(c.rows[0].mi) + '/month. ' : '') + c.miRule;
+
+  if(S.rateType==='arm'){
+    const a = armParams(S);
+    $('armHint').textContent = 'Fully indexed rate today: ' + pctf(r8(a.index + a.margin)) + '. Floor ' + pctf(a.margin) + ', ceiling ' + pctf(c.startRate + a.cl) + '. First change at payment ' + (a.fixedM+1) + ' (' + dateLabel(S, a.fixedM+1) + '), then every ' + a.adj + ' months.';
+  }
+  $('pdfScope').disabled = scenarios.length<2; if(scenarios.length<2) $('pdfScope').value = 'one';
+
+  renderCompare(); renderBuydown(c); renderRates(c); renderChart(c); renderSchedule(c);
+}
+
+function renderTabs(){
+  $('scenBar').innerHTML = scenarios.map((S,i)=>{ const c = results[i];
+    return `<button type="button" class="tab" role="tab" aria-selected="${i===active}" data-tab="${i}">
+      <span class="t1">Scenario ${i+1}</span><span class="t2">${esc(autoLabel(S))}</span><span class="t3">${money(c.r1.total)}/mo</span></button>`; }).join('')
+    + `<button type="button" class="tab add" id="addScen" ${scenarios.length>=3?'disabled':''}>${scenarios.length>=3?'Up to 3 scenarios':'+ Add scenario (copies current)'}</button>`
+    + (scenarios.length>1 ? `<button type="button" class="tab add" id="rmScen" style="color:var(--muted)">Remove scenario ${active+1}</button>` : '');
+}
+$('scenBar').addEventListener('click', e=>{
+  const t = e.target.closest('[data-tab]');
+  if(t){ const i = +t.dataset.tab; if(i!==active){ scenarios[active] = readState(); active = i; applyState(scenarios[i]); render(); } return; }
+  if(e.target.closest('#addScen') && scenarios.length<3){ scenarios[active] = readState(); const S = clone(scenarios[active]); S.scName=''; scenarios.push(S); active = scenarios.length-1; applyState(S); render(); toast('Scenario ' + (active+1) + ' added. Change the loan type or terms to compare.'); return; }
+  if(e.target.closest('#rmScen') && scenarios.length>1){ scenarios.splice(active,1); active = Math.max(0, active-1); applyState(scenarios[active]); render(); }
+});
+
+function cmpData(){
+  const sec = t => ({sec:t});
+  const row = (k, f, best) => ({k, vals: results.map(f), best});
+  return [
+    sec('Loan'),
+    row('Loan type', c=>TYPE_NAME[c.type]),
+    row('Rate type', c=>rateTypeName(c.S) + (c.S.buydown ? ' + ' + bdName(c.S) : '')),
+    row('Term', c=>c.yrs + ' years'),
+    row('Starting note rate', c=>pctf(c.startRate)),
+    {...row('APR', c=>pctf(c.apr.apr), c=>c.apr.apr), key:true},
+    row('Purchase price', c=>money(c.price)),
+    row('Down payment', c=>money(c.dp) + ' (' + pctf(c.dpPct,2) + ')'),
+    row('Base loan amount', c=>money(c.base)),
+    row('Upfront MI / funding fee', c=>c.upfront>0 ? money(c.upfront) + (c.financed?' fin.':' cash') : 'None'),
+    row('Total loan amount', c=>money(c.loan)),
+    sec('Monthly payment (first payment)'),
+    row('Principal & interest', c=>m2(c.r1.pi - c.r1.sub)),
+    row('Taxes & insurance', c=>m2(c.r1.esc)),
+    row('Mortgage insurance', c=>c.r1.mi>0 ? m2(c.r1.mi) : 'None'),
+    row('HOA & other fees', c=>m2(c.r1.hoa)),
+    {...row('Total monthly payment', c=>m2(c.r1.total), c=>c.r1.total), key:true},
+    row('Payment after buydown / changes', c=>{ const s = paySteps(c); return s.length>1 ? s.map(x=>x.span.replace('Years ','Yrs ').replace('Year ','Yr ') + ' ' + money(x.t)).join(', ') : 'Same'; }),
+    row('MI ends', c=>!c.annPct ? 'No monthly MI' : (c.miEnd && c.miEnd<c.rows.length ? dateLabel(c.S, c.miEnd+1) : 'Life of loan')),
+    sec('Cash & cost'),
+    {...row('Down payment, points, cash MI', c=>money(c.cash), c=>c.cash), key:true},
+    row('Buydown cost (' + 'paid by others)', c=>c.subTotal>0 ? money(c.subTotal) + ' ' + String(c.S.bdPayer).toLowerCase() : 'None'),
+    {...row('5-year cost (payments + cash)', c=>money(c.cost5), c=>c.cost5), key:true},
+    row('Total interest (life of loan)', c=>money(c.totInt)),
+    row('Total mortgage insurance', c=>money(c.totMI))
+  ];
+}
+function renderCompare(){
+  const data = cmpData(); const multi = results.length>1;
+  let h = `<thead><tr><th></th>${scenarios.map((S,i)=>`<th class="${i===active?'active':''}">Scenario ${i+1}<br><span style="font-weight:500;color:var(--muted)">${esc(autoLabel(S))}</span></th>`).join('')}</tr></thead><tbody>`;
+  for(const r of data){
+    if(r.sec){ h += `<tr class="sec"><td colspan="${results.length+1}">${r.sec}</td></tr>`; continue; }
+    let bestI = -1; if(multi && r.best){ const v = results.map(r.best); const mn = Math.min(...v); if(v.filter(x=>Math.abs(x-mn)<0.5).length < v.length) bestI = v.findIndex(x=>Math.abs(x-mn)<0.5); }
+    h += `<tr class="${r.key?'key':''}"><td>${esc(r.k)}</td>${r.vals.map((v,i)=>`<td class="${i===bestI?'best':''}" style="white-space:normal">${esc(v)}</td>`).join('')}</tr>`;
+  }
+  if(!multi) h += `<tr><td colspan="2" style="white-space:normal">Add a scenario at the top of the page to compare loan types side by side.</td></tr>`;
+  $('cmpTable').innerHTML = h + '</tbody>';
+}
+
+function renderBuydown(c){
+  const tbl = $('bdTable'), rows = bdRows(c);
+  if(!rows.length){ $('bdTag').textContent = ''; tbl.innerHTML = '<tbody><tr><td style="white-space:normal">No temporary buydown in this scenario. Choose 3-2-1, 2-1, 1-0, 1-1 or a custom schedule to see the subsidy.</td></tr></tbody>'; return; }
+  $('bdTag').textContent = bdName(c.S) + ', paid by ' + String(c.S.bdPayer).toLowerCase();
+  tbl.innerHTML = `<thead><tr><th>Year</th><th>Buyer rate</th><th>Buyer P&amp;I</th><th>Savings / mo</th><th>Subsidy</th></tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><td>Total buydown cost</td><td></td><td></td><td></td><td>${m2(c.subTotal)}</td></tr></tfoot>`;
+}
+function renderRates(c){
+  const rows = rateRows(c);
+  let body = rows.slice(0,24).map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('');
+  if(rows.length===1) body += `<tr><td colspan="5" style="white-space:normal">Fixed rate. Principal and interest stays the same for the life of the loan${c.reds.length?' (the buyer pays less during the buydown years)':''}.</td></tr>`;
+  $('rateTable').innerHTML = `<thead><tr><th>Payment #</th><th>Date</th><th>Note rate</th><th>P&amp;I</th><th>Change</th></tr></thead><tbody>${body}</tbody>`;
+}
+function renderChart(c){
+  $('chartTag').textContent = 'Scenario ' + (active+1) + ': average monthly payment in each loan year';
+  const W = 760, H = 240, pl = 56, pr = 10, pt = 12, pb = 28, yearly = c.yearly, Y = yearly.length;
+  if(!Y){ $('chart').innerHTML=''; return; }
+  const data = yearly.map(y=>{ const k=y.months||1; return [(y.pi-y.sub)/k, y.esc/k, y.mi/k, y.hoa/k]; });
+  const max = Math.max(...data.map(d=>d.reduce((a,b)=>a+b,0)));
+  const step = niceStep(max/4), top = Math.ceil(max/step)*step || 1;
+  const bw = (W-pl-pr)/Y, sy = v => (H-pb) - v/top*(H-pb-pt);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:520px;display:block" role="img" aria-label="Average monthly payment by loan year">`;
+  for(let v=0; v<=top+0.01; v+=step) s += `<line x1="${pl}" x2="${W-pr}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${sy(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${money(v)}</text>`;
+  const cols = ['var(--c-pi)','var(--c-esc)','var(--c-mi)','var(--c-hoa)'];
+  data.forEach((d,i)=>{ let acc = 0; const x = pl + i*bw + bw*0.12, w = Math.max(1, bw*0.76);
+    d.forEach((v,j)=>{ if(v<=0) return; const y0 = sy(acc), y1 = sy(acc+v); s += `<rect x="${x.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${(y0-y1).toFixed(1)}" fill="${cols[j]}"><title>Year ${i+1}: ${money(d.reduce((a,b)=>a+b,0))}/mo</title></rect>`; acc += v; });
+    if(i===0 || (i+1)%5===0) s += `<text x="${(x+w/2).toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${i===0?'Yr 1':i+1}</text>`;
+  });
+  $('chart').innerHTML = s + '</svg>';
+}
+function niceStep(x){ if(x<=0) return 1; const p = Math.pow(10, Math.floor(Math.log10(x))), f = x/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+
+function amortYearRows(c){
+  return c.yearly.map((y,i)=>[`Year ${i+1}`, dateLabel(c.S, i*12+1).split(' ')[1], y.rateMin===y.rateMax ? pctf(y.rateMin) : pctf(y.rateMin)+' to '+pctf(y.rateMax),
+    m2(y.pi-y.sub), m2(y.int), m2(y.prin+y.ex), m2(y.mi), m2(y.esc+y.hoa), m2(y.bal)]);
+}
+function renderSchedule(c){
+  const tbl = $('amTable'); let body = '';
+  if(schedView==='year'){
+    body = amortYearRows(c).map((r,i)=>`<tr class="${c.yearly[i].sub>0?'hl':''}">${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('');
+    tbl.innerHTML = `<thead><tr><th>Loan year</th><th>Year</th><th>Rate</th><th>P&amp;I paid</th><th>Interest</th><th>Principal</th><th>MI</th><th>Escrow &amp; fees</th><th>Balance</th></tr></thead><tbody>${body}</tbody>`;
+  } else {
+    for(const r of c.rows) body += `<tr class="${r.sub>0?'hl':''}"><td>${r.m}</td><td>${dateLabel(c.S, r.m)}</td><td>${pctf(r.sub>0?r.bRate:r.rate)}</td><td>${m2(r.pi-r.sub)}</td><td>${m2(r.int)}</td><td>${m2(r.prin+r.ex)}</td><td>${m2(r.mi)}</td><td>${m2(r.total)}</td><td>${m2(r.bal)}</td></tr>`;
+    tbl.innerHTML = `<thead><tr><th>#</th><th>Date</th><th>Buyer rate</th><th>Buyer P&amp;I</th><th>Interest</th><th>Principal</th><th>MI</th><th>Total payment</th><th>Balance</th></tr></thead><tbody>${body}</tbody>`;
+  }
+  tbl.insertAdjacentHTML('beforeend', `<tfoot><tr><td>Totals</td><td></td><td></td><td></td><td>${m2(c.totInt)}</td><td>${m2(c.rows.reduce((s,r)=>s+r.prin+r.ex,0))}</td><td>${m2(c.totMI)}</td><td></td><td></td></tr></tfoot>`);
+}
+
+/* ---------- Lists ---------- */
+function renderFees(){
+  $('feeList').innerHTML = ui.fees.map((f,i)=>`<div class="item">
+    <input type="text" id="feeName${i}" data-i="${i}" data-k="name" value="${esc(f.name)}" aria-label="Fee name">
+    <div class="in has-pre"><span class="pre">$</span><input type="number" id="feeAmt${i}" data-i="${i}" data-k="amt" value="${f.amt}" aria-label="Fee amount"></div>
+    <select id="feeFreq${i}" data-i="${i}" data-k="freq" aria-label="Frequency"><option value="month" ${f.freq==='month'?'selected':''}>per month</option><option value="year" ${f.freq==='year'?'selected':''}>per year</option></select>
+    <button type="button" class="btn x" data-rm="${i}">Remove</button></div>`).join('');
+}
+function renderVar(){
+  $('varList').innerHTML = ui.varRows.map((v,i)=>`<div class="item" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto">
+    <div class="f"><label for="vy${i}">Starting year</label><input type="number" id="vy${i}" data-i="${i}" data-k="year" min="2" value="${v.year}"></div>
+    <div class="f"><label for="vr${i}">Rate</label><div class="in has-suf"><input type="number" id="vr${i}" data-i="${i}" data-k="rate" step="0.125" value="${v.rate}"><span class="suf">%</span></div></div>
+    <button type="button" class="btn x" data-rm="${i}" style="align-self:end">Remove</button></div>`).join('');
+}
+$('feeList').addEventListener('input', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.fees[i][t.dataset.k] = t.dataset.k==='amt' ? +t.value : t.value; render(); });
+$('feeList').addEventListener('change', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.fees[i][t.dataset.k] = t.dataset.k==='amt' ? +t.value : t.value; render(); });
+$('feeList').addEventListener('click', e=>{ const i = e.target.dataset.rm; if(i!==undefined){ ui.fees.splice(+i,1); renderFees(); render(); } });
+$('addFee').onclick = ()=>{ ui.fees.push({name:'Other fee', amt:0, freq:'month'}); renderFees(); render(); };
+$('varList').addEventListener('input', e=>{ const t=e.target, i=t.dataset.i; if(i===undefined) return; ui.varRows[i][t.dataset.k] = +t.value; render(); });
+$('varList').addEventListener('click', e=>{ const i = e.target.dataset.rm; if(i!==undefined){ ui.varRows.splice(+i,1); renderVar(); render(); } });
+$('addVar').onclick = ()=>{ const lastY = ui.varRows.length ? ui.varRows[ui.varRows.length-1].year : 1; ui.varRows.push({year:lastY+2, rate:parseFloat($('rate').value)||0}); renderVar(); render(); };
+
+/* ---------- Linked inputs ---------- */
+const val = id => parseFloat($(id).value) || 0;
+const fix = (v,d) => +(+v).toFixed(d);
+$('price').addEventListener('input', ()=>{ const p=val('price'); $('dpAmt').value = Math.round(p*val('dpPct')/100); $('taxAmt').value = Math.round(p*val('taxPct')/100); });
+$('dpAmt').addEventListener('input', ()=>{ const p=val('price'); $('dpPct').value = p? fix(val('dpAmt')/p*100,3) : 0; });
+$('dpPct').addEventListener('input', ()=>{ $('dpAmt').value = Math.round(val('price')*val('dpPct')/100); });
+$('taxAmt').addEventListener('input', ()=>{ const p=val('price'); $('taxPct').value = p? fix(val('taxAmt')/p*100,3) : 0; });
+$('taxPct').addEventListener('input', ()=>{ $('taxAmt').value = Math.round(val('price')*val('taxPct')/100); });
+$('loanType').addEventListener('change', ()=>{ const t=$('loanType').value, d=val('dpPct'); $('miFin').checked = t!=='conv';
+  const setDp = p => { $('dpPct').value = p; $('dpAmt').value = Math.round(val('price')*p/100); };
+  if((t==='va'||t==='usda') && d===3.5) setDp(0);
+  if(t==='fha' && d<3.5) setDp(3.5);
+  if(t==='conv' && d<3) setDp(5); });
+
+document.querySelectorAll('[data-rt]').forEach(b=>b.addEventListener('click', ()=>{
+  ui.rateType = b.dataset.rt; if(ui.rateType==='arm' && val('rate')===6.25) $('rate').value = 5.875; syncUI(); render(); }));
+document.querySelectorAll('[data-bd]').forEach(b=>b.addEventListener('click', ()=>{ ui.buydown = b.dataset.bd; syncUI(); render(); }));
+document.querySelectorAll('[data-sv]').forEach(b=>b.addEventListener('click', ()=>{
+  schedView = b.dataset.sv; document.querySelectorAll('[data-sv]').forEach(x=>x.setAttribute('aria-pressed', x===b)); renderSchedule(results[active]); }));
+const onField = e=>{ if(e.target.closest('#feeList,#varList')) return; syncUI(); render(); };
+document.querySelector('.inputs').addEventListener('input', onField);
+document.querySelector('.inputs').addEventListener('change', onField);
+
+/* ---------- Copy summary ---------- */
+function summaryText(c, i){
+  const S = c.S, r = c.r1, L = [];
+  L.push(`Scenario ${i+1}: ${autoLabel(S)}`);
+  L.push(`${TYPE_NAME[c.type]} ${c.yrs}-year ${rateTypeName(S)}, starting rate ${pctf(c.startRate)}, APR ${pctf(c.apr.apr)}`);
+  L.push(`Price ${money(c.price)}, down ${money(c.dp)} (${pctf(c.dpPct,2)}), loan amount ${money(c.loan)}`);
+  if(c.upfront>0) L.push(`${UP_NAME[c.type]}: ${money(c.upfront)} ${c.financed?'(financed)':'(paid at closing)'}`);
+  L.push(`Estimated monthly payment: ${m2(r.total)}`);
+  L.push(`  Principal & interest: ${m2(r.pi - r.sub)}${r.sub>0?' (with buydown)':''}`);
+  L.push(`  Taxes: ${m2(c.tax)}  Insurance: ${m2(c.ins + c.flood)}`);
+  if(r.mi>0) L.push(`  ${MI_NAME[c.type]}: ${m2(r.mi)}`);
+  if(r.hoa>0) L.push(`  HOA and other fees: ${m2(r.hoa)}`);
+  const st = paySteps(c); if(st.length>1) L.push('Payment over time: ' + st.map(s=>s.span + ' ' + money(s.t)).join('; '));
+  if(c.subTotal>0) L.push(`Buydown cost: ${m2(c.subTotal)} paid by ${String(S.bdPayer).toLowerCase()}`);
+  L.push(`Down payment, points and cash MI: ${money(c.cash)}`);
+  return L.join('\n');
+}
+$('copyBtn').onclick = async ()=>{
+  const text = results.map(summaryText).join('\n\n') + `\n\nEstimate only, not a Loan Estimate. ${LO.name}, NMLS #${LO.nmls}, Responsive Mortgage, a division of PRMG, NMLS #${LO.coNmls}. ${LO.phone}`;
+  try { await navigator.clipboard.writeText(text); toast('Summary copied'); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); toast('Summary copied');}catch{toast('Copy blocked. Select the text manually.');} ta.remove(); }
+};
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true, 2600); }
+
+/* ---------- PDF ---------- */
+// Responsive Mortgage logo: set RM_LOGO to {data:'data:image/png;base64,...', w:<px>, h:<px>} to use the real logo.
+const RM_LOGO = null;
+const TEAL = [22,58,99], ORANGE = [232,121,43], INK = [20,32,46], MUTED = [91,102,118], SOFT = [234,239,246], GOOD = [29,122,69];
+function drawEHO(doc, x, y, s){
+  doc.setFillColor(...INK);
+  doc.triangle(x+0.5*s, y, x, y+0.42*s, x+s, y+0.42*s, 'F');
+  doc.rect(x+0.12*s, y+0.4*s, 0.76*s, 0.6*s, 'F');
+  doc.setFillColor(255,255,255);
+  doc.rect(x+0.28*s, y+0.5*s, 0.44*s, 0.11*s, 'F');
+  doc.rect(x+0.28*s, y+0.72*s, 0.44*s, 0.11*s, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(5.2); doc.setTextColor(...INK);
+  doc.text(['EQUAL HOUSING','OPPORTUNITY'], x+s/2, y+s+6, {align:'center'});
+  doc.setFont('helvetica','normal');
+}
+function drawBrand(doc, x, y){
+  if(RM_LOGO){ const h = 34, w = h*RM_LOGO.w/RM_LOGO.h; doc.addImage(RM_LOGO.data, 'PNG', x, y-24, w, h); return; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(...TEAL);
+  doc.text('Responsive Mortgage', x, y);
+  doc.setFillColor(...ORANGE); doc.rect(x, y+6, 48, 3, 'F');
+  doc.setFont('helvetica','normal');
+}
+function buildPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'pt', format:'letter'});
+  const W = 612, M = 40;
+  const all = $('pdfScope').value==='all' && results.length>1;
+  const list = all ? results.map((c,i)=>({c,i})) : [{c:results[active], i:active}];
+  const today = new Date().toLocaleDateString('en-US',{month:'long', day:'numeric', year:'numeric'});
+
+  // Header: logo left, loan officer right, navy rule with orange accent
+  drawBrand(doc, M, 40);
+  doc.setFontSize(8.5); doc.setTextColor(...INK);
+  doc.text([`${LO.name}, ${LO.title}  |  NMLS #${LO.nmls}`, `${LO.phone}  |  ${LO.email}`, `Responsive Mortgage, a division of PRMG  |  NMLS #${LO.coNmls}`], W-M, 24, {align:'right'});
+  doc.setFillColor(...TEAL); doc.rect(M, 62, W-2*M, 2, 'F');
+  doc.setFillColor(...ORANGE); doc.rect(M, 62, 90, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...TEAL);
+  doc.text(all ? 'Loan Scenario Comparison' : 'Mortgage Payment Estimate', M, 84);
+  doc.setFont('helvetica','normal');
+  let y = 102;
+  doc.setTextColor(...INK); doc.setFontSize(10);
+  const pf = $('pdfFor').value.trim(), pp = $('pdfProp').value.trim();
+  const meta = [pf ? 'Prepared for: ' + pf : null, pp ? 'Property: ' + pp : null, 'Date: ' + today].filter(Boolean).join('     ');
+  doc.text(meta, M, y); y += 16;
+
+  const BOT = 92, tableBase = {theme:'grid', margin:{left:M, right:M, top:50, bottom:BOT}, styles:{font:'helvetica', fontSize:8.5, cellPadding:4, textColor:INK, lineColor:[215,224,222], lineWidth:0.5},
+    headStyles:{fillColor:TEAL, textColor:255, fontStyle:'bold'}};
+
+  if(all){
+    const data = cmpData();
+    const body = [];
+    for(const r of data){
+      if(r.sec){ body.push([{content:r.sec.toUpperCase(), colSpan:list.length+1, styles:{fillColor:SOFT, fontStyle:'bold', textColor:MUTED, fontSize:7.5}}]); continue; }
+      let bestI = -1; if(r.best){ const v = results.map(r.best), mn = Math.min(...v); if(v.filter(x=>Math.abs(x-mn)<0.5).length < v.length) bestI = v.findIndex(x=>Math.abs(x-mn)<0.5); }
+      body.push([{content:r.k, styles:{textColor:MUTED, fontStyle: r.key?'bold':'normal'}}, ...r.vals.map((v,i)=>({content:v, styles:{halign:'right', fontStyle:r.key?'bold':'normal', ...(i===bestI?{textColor:GOOD, fillColor:[225,242,232]}:{})}}))]);
+    }
+    doc.autoTable({...tableBase, startY:y+4,
+      head:[[ '', ...list.map(({c,i})=>({content:`Scenario ${i+1}\n${autoLabel(c.S)}`, styles:{halign:'right'}})) ]],
+      body, columnStyles:Object.assign({0:{cellWidth:150}}, ...list.map((_,j)=>({[j+1]:{cellWidth:(W-2*M-150)/list.length}})))});
+    y = doc.lastAutoTable.finalY + 8;
+    doc.setFontSize(8); doc.setTextColor(...MUTED);
+    doc.text('Green marks the lowest monthly payment, cash needed and 5-year cost. 5-year cost = first 60 payments plus down payment, points and cash MI.', M, y+6, {maxWidth:W-2*M});
+    y += 22;
+  }
+
+  for(const {c,i} of list){
+    if(all || y > 120) { doc.addPage(); y = 50; }
+    doc.setTextColor(...TEAL); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text(`Scenario ${i+1}: ${autoLabel(c.S)}`, M, y); y += 8;
+    doc.setFont('helvetica','normal');
+
+    const bk = breakdown(c).map(([k,v])=>[k, {content:m2(v), styles:{halign:'right'}}]);
+    bk.push([{content:'Total monthly payment', styles:{fontStyle:'bold'}}, {content:m2(c.r1.total), styles:{halign:'right', fontStyle:'bold'}}]);
+    doc.autoTable({...tableBase, startY:y+6, margin:{left:M, right:W/2+6, top:50, bottom:BOT}, head:[['Monthly payment (first payment)','']], body:bk});
+    const yL = doc.lastAutoTable.finalY;
+    doc.autoTable({...tableBase, startY:y+6, margin:{left:W/2+6, right:M, top:50, bottom:BOT}, head:[['Loan details','']],
+      body: factsList(c).map(([k,v])=>[k, {content:v, styles:{halign:'right'}}]), styles:{...tableBase.styles, fontSize:8}});
+    y = Math.max(yL, doc.lastAutoTable.finalY) + 14;
+
+    const st = paySteps(c);
+    const notes = [];
+    if(st.length>1) notes.push('Payment over time: ' + st.map(s=>s.span + ' ' + money(s.t)).join(';  '));
+    notes.push(c.miRule);
+    doc.setFontSize(9); doc.setTextColor(...INK);
+    for(const nTxt of notes){ const lines = doc.splitTextToSize(nTxt, W-2*M); if(y + lines.length*12 > 730){ doc.addPage(); y = 50; } doc.text(lines, M, y); y += lines.length*12 + 4; }
+
+    const br = bdRows(c);
+    if(br.length){
+      doc.autoTable({...tableBase, startY:y+4, head:[[`${bdName(c.S)} (paid by ${String(c.S.bdPayer).toLowerCase()})`, 'Buyer rate', 'Buyer P&I', 'Savings / mo', 'Subsidy']],
+        body: br, foot:[[ 'Total buydown cost','','','', m2(c.subTotal) ]], footStyles:{fillColor:SOFT, textColor:INK, fontStyle:'bold'},
+        columnStyles:{1:{halign:'right'},2:{halign:'right'},3:{halign:'right'},4:{halign:'right'}}});
+      y = doc.lastAutoTable.finalY + 12;
+    }
+    const rr = rateRows(c);
+    if(rr.length>1){
+      doc.autoTable({...tableBase, startY:y+4, head:[['Payment #','Date','Note rate','P&I','Change']], body: rr.slice(0,24),
+        columnStyles:{2:{halign:'right'},3:{halign:'right'},4:{halign:'right'}}});
+      y = doc.lastAutoTable.finalY + 12;
+    }
+    if($('pdfAmort').checked){
+      if(y > 600){ doc.addPage(); y = 40; }
+      doc.autoTable({...tableBase, startY:y+4, styles:{...tableBase.styles, fontSize:7.5, cellPadding:3},
+        head:[['Loan yr','Year','Rate','P&I paid','Interest','Principal','MI','Escrow & fees','Balance']], body: amortYearRows(c),
+        columnStyles:{3:{halign:'right'},4:{halign:'right'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'},8:{halign:'right'}}});
+      y = doc.lastAutoTable.finalY + 12;
+    }
+  }
+
+  // Footer on every page
+  const pages = doc.getNumberOfPages();
+  for(let p=1; p<=pages; p++){
+    doc.setPage(p);
+    doc.setDrawColor(215,224,222); doc.line(M, 714, W-M, 714);
+    doc.setFontSize(6.6); doc.setTextColor(...MUTED);
+    const dl = doc.splitTextToSize(DISCLAIMER, W-2*M-48);
+    doc.text(dl, M, 723);
+    const cy = 723 + dl.length*7.6 + 3;
+    doc.setTextColor(...INK);
+    doc.text(doc.splitTextToSize(`${LO.name}, NMLS #${LO.nmls}  |  ${LO.co}, NMLS #${LO.coNmls}  |  ${LO.addr}  |  ${LO.web}`, W-2*M-48), M, cy);
+    drawEHO(doc, W-M-28, 720, 26);
+    doc.setFontSize(6.6); doc.setTextColor(...MUTED);
+    doc.text(`Page ${p} of ${pages}`, W-M, 782, {align:'right'});
+  }
+  return doc;
+}
+$('pdfBtn').onclick = async ()=>{
+  scenarios[active] = readState(); recalcAll();
+  if(!window.jspdf || !window.jspdf.jsPDF || !window.jspdf.jsPDF.API.autoTable){ toast('The PDF tools did not load. Reload the page and try again.'); return; }
+  const btn = $('pdfBtn'); btn.disabled = true; btn.textContent = 'Building PDF...';
+  try{
+    const doc = buildPDF();
+    const who = ($('pdfFor').value.trim() || 'Estimate').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const fname = `Mortgage-${results.length>1 && $('pdfScope').value==='all' ? 'Comparison' : 'Estimate'}-${who}-${new Date().toISOString().slice(0,10)}.pdf`;
+    const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+    if(!dl){ toast('Downloads aren\'t available in this view. Open the page in claude.ai to save the PDF.'); return; }
+    await dl.save({filename: fname, data: doc.output('blob')});
+    toast('PDF saved: ' + fname);
+  } catch(err){
+    const code = err && err.code;
+    toast(code==='declined' ? 'Download canceled' : code==='rate_limited' ? 'A download prompt is already open' : 'Could not create the PDF. ' + (err && err.message ? err.message : ''));
+  } finally { btn.disabled = false; btn.textContent = 'Download PDF'; }
+};
+
+/* ---------- Start ---------- */
+let EXAMPLES;
+function loadExamples(){
+  const A = readState();
+  A.scName=''; A.loanType='fha'; A.dpPct='3.5'; A.dpAmt='14000'; A.rate='6.25'; A.buydown='2,1'; A.miFin=true; A.miAuto=true; A.rateType='fixed';
+  const B = clone(A); Object.assign(B, {loanType:'conv', dpPct:'5', dpAmt:'20000', rate:'6.625', score:'1', miFin:false, buydown:''});
+  const C = clone(A); Object.assign(C, {loanType:'va', dpPct:'0', dpAmt:'0', rate:'6', vaUse:'first', miFin:true, buydown:''});
+  return [A,B,C];
+}
+if(RM_LOGO) $('brandMark').innerHTML = `<img src="${RM_LOGO.data}" alt="Responsive Mortgage">`;
+renderFees(); renderVar(); syncUI();
+EXAMPLES = loadExamples();
+scenarios = clone(EXAMPLES); active = 0; applyState(scenarios[0]); render();
+$('resetBtn').onclick = ()=>{ scenarios = clone(EXAMPLES); active = 0; applyState(scenarios[0]); render(); toast('Reset to the three example scenarios'); };
+</script>
+
+</body></html>
