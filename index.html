@@ -1,6 +1,7 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>Manny's Mortgage Calculator</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Compare up to three mortgage scenarios: fixed, ARM or variable rates, buydowns, APR, and FHA, VA, USDA and conventional mortgage insurance. Manny Lindo, Responsive Mortgage, NMLS #873412.">
+</head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -335,7 +336,7 @@ tfoot td{font-weight:700; background:var(--surface-2); border-top:2px solid var(
       <button type="button" class="btn" id="copyBtn">Copy summary</button>
       <button type="button" class="btn" id="resetBtn">Reset to examples</button>
     </div>
-    <div class="hint" id="pdfHint">You'll be asked to confirm the download. Attach the file to your email.</div>
+    <div class="hint" id="pdfHint">The PDF downloads to your device. Attach the file to your email.</div>
   </div>
 </aside>
 </div>
@@ -1006,8 +1007,8 @@ $('pdfBtn').onclick = async ()=>{
     const who = ($('pdfFor').value.trim() || 'Estimate').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const fname = `Mortgage-${results.length>1 && $('pdfScope').value==='all' ? 'Comparison' : 'Estimate'}-${who}-${new Date().toISOString().slice(0,10)}.pdf`;
     const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
-    if(!dl){ toast('Downloads aren\'t available in this view. Open the page in claude.ai to save the PDF.'); return; }
-    await dl.save({filename: fname, data: doc.output('blob')});
+    if(dl) await dl.save({filename: fname, data: doc.output('blob')});
+    else doc.save(fname);
     toast('PDF saved: ' + fname);
   } catch(err){
     const code = err && err.code;
